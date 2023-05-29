@@ -37,7 +37,7 @@ class AccountGroupController extends Controller
                     'type_name' => $acc_group->accountType->name,
                     'company_id' => $acc_group->company_id,
                     'company_name' => $acc_group->company->name,
-                    'delete' => Account::where('group_id', $acc_group->id)->first() ? false : true,
+                    'delete' => Account::where('group_id', $acc_group->id)->first() || AccountGroup::where('company_id', session('company_id'))->where('parent_id', $acc_group->id)->first() ? false : true,
                 ];
             });
         } else {
@@ -51,7 +51,8 @@ class AccountGroupController extends Controller
                     'type_name' => $acc_group->accountType->name,
                     'company_id' => $acc_group->company_id,
                     'company_name' => $acc_group->company->name,
-                    'delete' => Account::where('group_id', $acc_group->id)->first() ? false : true,
+                    // 'delete' => Account::where('group_id', $acc_group->id)->first() ? false : true,
+                    'delete' => Account::where('group_id', $acc_group->id)->first() || AccountGroup::where('company_id', session('company_id'))->where('parent_id', $acc_group->id)->first() ? false : true,
                 ];
             });
         }
