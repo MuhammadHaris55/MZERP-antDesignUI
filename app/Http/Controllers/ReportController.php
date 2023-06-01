@@ -299,7 +299,10 @@ class ReportController extends Controller
     public function trialbalance_accToDate(Req $request)
     {
         $data['date'] = $request->date;
-        $data['account_groups'] = AccountGroup::where('company_id', session('company_id'))->get();
+        $data['account_groups'] = AccountGroup::where('company_id', session('company_id'))
+            ->orderBy('type_id')
+            ->orderBy('parent_id')
+            ->get();
         // dd($data['account_groups']);
         $data['entry_obj'] = Entry::where('company_id', session('company_id'))
             ->get();
