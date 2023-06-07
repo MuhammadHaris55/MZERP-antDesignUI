@@ -296,6 +296,10 @@ Route::get('documents/downloadFile', [DocumentController::class, 'downloadFile']
 ->name('Accountpdf')
 ->middleware('auth');
 
+Route::post('/delete-transactions', [DocumentController::class, 'delete_transactions'])->name('delete_transactions')
+    ->middleware('auth');
+
+
 
 //DOCUMENT ....TRANSACTION + ENTRIES--------------------- END ----------------------
 

@@ -53,6 +53,25 @@
                 style="width: 200px"
                 @search="onSearch"
             />
+            <input
+                hidden
+                id="selected"
+                @click="checkAll()"
+                v-model="form_delete_transaction.selected_arr"
+            />
+            <label
+                v-if="isCheckAll"
+                class="ant-btn ant-btn-sm ml-2"
+                for="selected"
+            >
+                Un-Select All</label
+            >
+            <label v-else class="ant-btn ant-btn-sm ml-2" for="selected">
+                Select All</label
+            >
+            <Button danger ghost @click="selete()" class="ml-2" size="small"
+                >Delete</Button
+            >
 
             <!-- <div v-if="can['create']" class="mt-2">
                 <form @submit.prevent="submit">
@@ -110,6 +129,29 @@
                     size="small"
                 >
                     <template #bodyCell="{ column, record }">
+                        <template v-if="column.key === 'delete'">
+                            <!-- <Checkbox
+                v-if="record.approve"
+                v-model:value="record.name"
+                checked
+              />
+              <Checkbox
+                v-else
+                v-model:value="record.name"
+                v-model:checked="unchecked"
+                @change="updateCheckall()"
+              /> -->
+
+                            <input
+                                class="focus:ring-green-500 checkbox-item"
+                                type="checkbox"
+                                @change="updateCheckall(record.id)"
+                            />
+                            <!--
+                                v-bind:value="record.id"
+                                v-model="form.selected_arr"
+                            name="selected_arr"-->
+                        </template>
                         <template v-if="column.key === 'actions'">
                             <!-- v-if="can['edit'] || can['delete']" -->
                             <Button
@@ -159,6 +201,7 @@ import {
     Select,
     InputSearch,
     Anchor,
+    Checkbox,
 } from "ant-design-vue";
 import JetButton from "@/Jetstream/Button";
 import Paginator from "@/Layouts/Paginator";
@@ -175,6 +218,7 @@ export default {
         Table,
         Select,
         InputSearch,
+        Checkbox,
 
         JetButton,
         Paginator,
@@ -207,7 +251,10 @@ export default {
         const form = useForm({
             avatar: null,
         });
-        return { form };
+        const form_delete_transaction = useForm({
+            selected_arr: [],
+        });
+        return { form, form_delete_transaction };
     },
     data() {
         return {
@@ -220,6 +267,8 @@ export default {
             years: this.years,
             selected_year: this.year.name,
 
+            isCheckAll: false,
+
             columns: [
                 // {
                 //   title: "ID",
@@ -227,6 +276,11 @@ export default {
                 //   // sorter: (a, b) => a.id - b.id,
                 //   width: "10%",
                 // },
+                {
+                    title: "Delete",
+                    dataIndex: "approve",
+                    key: "delete",
+                },
                 {
                     title: "Reference",
                     dataIndex: "ref",
@@ -329,6 +383,60 @@ export default {
                 replace: true,
                 preserveState: true,
             });
+        },
+
+        checkAll: function () {
+            this.isCheckAll = !this.isCheckAll;
+            this.form_delete_transaction.selected_arr = [];
+            var checkboxes = document.getElementsByClassName("checkbox-item");
+            if (this.isCheckAll) {
+                // Check all
+                for (var key in this.mapped_data) {
+                    // checkboxes[key].checked = true;
+                    this.form_delete_transaction.selected_arr.push(
+                        this.mapped_data[key].id
+                    );
+                }
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = true;
+                }
+            } else {
+                for (var i = 0; i < checkboxes.length; i++) {
+                    checkboxes[i].checked = false;
+                }
+            }
+        },
+        updateCheckall: function (id) {
+            if (this.form_delete_transaction.selected_arr.includes(id)) {
+                console.log("include" + id);
+                const index =
+                    this.form_delete_transaction.selected_arr.indexOf(id);
+                if (index !== -1) {
+                    this.form_delete_transaction.selected_arr.splice(index, 1); // Array se value ko nikalna
+                    console.log("Value array se nikali gayi.");
+                }
+            } else {
+                this.form_delete_transaction.selected_arr.push(id);
+            }
+            if (
+                this.form_delete_transaction.selected_arr.length ==
+                this.mapped_data.length
+            ) {
+                console.log("all checked true");
+                this.isCheckAll = true;
+            } else {
+                this.isCheckAll = false;
+            }
+        },
+        selete: function () {
+            if (this.form_delete_transaction.selected_arr.length >> 0) {
+                this.$inertia.post(
+                    route("delete_transactions", this.form_delete_transaction)
+                );
+                // this.selected_arr = [];
+            } else {
+                alert("Please select file");
+            }
         },
     },
     watch: {

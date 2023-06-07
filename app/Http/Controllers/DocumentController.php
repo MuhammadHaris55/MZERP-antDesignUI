@@ -441,4 +441,31 @@ class DocumentController extends Controller
             return Redirect::route('accounts.create')->with('success', 'Create Account first.');
         }
     }
+
+    public function delete_transactions(Req $req)
+    {
+        $selected_ids = $req->selected_arr;
+        if(count($selected_ids) >> 0)
+        {
+            DB::transaction(function () use ($selected_ids) {
+                $documents = Document::whereIn('id', $selected_ids)->get();
+                try {
+                    foreach($documents as $document)
+                    {
+                        $entries = Entry::where('document_id', $document->id)->get();
+                        foreach($entries as $entry)
+                        {
+                            $entry->delete();
+                        }
+                        $document->delete();
+                    }
+                } catch (Exception $e) {
+                    return $e;
+                }
+            });
+                return back()->with('success', 'Transaction deleted.');
+        } else {
+            return back()->with('error', 'Transaction not selected or not found.');
+        }
+    }
 }
