@@ -158,7 +158,7 @@ class CompanyController extends Controller
             session(['year_id' => $year->id]);
 
             //TO run the seeders class
-            Artisan::call('db:seed', array('--class' => "GroupSeeder"));
+            // Artisan::call('db:seed', array('--class' => "GroupSeeder"));
 
             // Storage::makeDirectory('/public/' . $company->id);
             // Storage::makeDirectory('/public/' . $company->id . '/' . $year->id);

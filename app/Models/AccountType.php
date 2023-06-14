@@ -18,4 +18,9 @@ class AccountType extends Model
         return $this->hasMany('App\Models\AccountGroup','type_id');
     }
 
+    //to get revenue for dashboard according to months
+    public function entries()
+    {
+        return $this->hasManyThrough(Entry::class, Account::class, 'type_id', 'account_id');
+    }
 }

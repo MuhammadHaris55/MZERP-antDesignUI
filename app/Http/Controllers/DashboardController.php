@@ -30,11 +30,67 @@ class DashboardController extends Controller
 
     public function index()
     {
-        // $roles = Role::all();
+        if(session('company_id') && session('year_id')){
+            $acc_types = AccountType::all();
+            $year = Year::find(session('year_id'));
+            $startDate = Carbon::parse($year->begin);
+            $endDate = Carbon::parse($year->end);
+            $i = 0;
+            $dashboard_variables = [];
+            $expense = $revenue = 0;
+            foreach($acc_types as $key => $type)
+            {
+                    if($type->name == 'Assets' || $type->name == 'Expenses')
+                    {
+                        $amount = $this->calculateDebitSumByAccountGroup($type->id, 'debit' , $startDate, $endDate);
+                        $dashboard_variables[] = ['name' => $type->name, 'amount' => number_format($amount,2)];
+                        if($type->name == 'Expenses') $expense = $amount;
+                    } else {
+                        $amount = $this->calculateDebitSumByAccountGroup($type->id, 'credit', $startDate, $endDate);
+                        $dashboard_variables[] = ['name' => $type->name, 'amount' => number_format($amount,2)];
+                        if($type->name == 'Revenue') $revenue = $amount;
+                    }
 
-        return Inertia::render('Dashboard', [
+            }
+
+            // Profit and Lose value working
+            $pnl = $revenue - $expense;
+            if ($pnl >= 0)
+            {
+                $dashboard_variables[] = ['name' => 'Total Profit/loss', 'amount' => number_format($pnl,2)];
+            } else {
+                $dashboard_variables[] = ['name' => 'Total Profit/loss', 'amount' => '(' . number_format(abs($pnl),2) . ')'];
+            }
+
+            // dd($Assets, $Liabilities, $Capital, $Revenue, $Expenses);
+
+            $revenue_id = AccountType::where('name', 'Revenue')->first();
+            $monthly_revenue = $this->calculateMonthlyRevenue($revenue_id->id, $startDate, $endDate);
+            $monthly_revenue_value =  (array_values($monthly_revenue));
+            $monthly_revenue_month =  (array_keys($monthly_revenue));
+            return Inertia::render('Dashboard', [
+            'dashboard_variables' => $dashboard_variables,
+            'monthly_revenue_value' =>$monthly_revenue_value,
+            'monthly_revenue_month' =>$monthly_revenue_month,
+            'all_companies' => Company::all(),
             // 'companies' => auth()->user()->companies,
-            'companies' => Company::all(),
+            'company' => Company::where('id', session('company_id'))->first(),
+            'companies' => auth()->user()->companies,
+            'years' => Year::where('company_id', session('company_id'))->get(),
+            'year' => Year::all()
+                ->where('company_id', session('company_id'))
+                ->where('id', session('year_id'))
+                ->map(
+                    function ($year) {
+                        $begin = new Carbon($year->begin);
+                        $end = new Carbon($year->end);
+
+                        return [
+                            'id' => $year->id,
+                            'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
+                        ];
+                    },
+                )->first(),
             // 'roles' => $roles,
             'can' => [
                 'edit' => auth()->user()->can('edit'),
@@ -45,7 +101,97 @@ class DashboardController extends Controller
             //To make the role assigning part visible only for haris@gmail.com
             'user' => auth()->user(),
         ]);
+        }else
+        {
+            return redirect()->route('companies');
+        }
+
+
+
     }
+
+    public function calculateMonthlyRevenue($id, $startDate, $endDate)
+    {
+        $accountGroups = AccountGroup::where('type_id', $id)
+        ->where('company_id', session('company_id'))
+        ->with('accounts.entries.document')
+        ->get();
+
+        $monthlySums = [];
+        $currentMonth = $startDate->copy();
+
+        while ($currentMonth->lte($endDate)) {
+            $monthName = $currentMonth->format('M');
+            $monthlySums[$monthName] = 0;
+
+            $currentMonth->addMonth();
+        }
+
+        foreach ($accountGroups as $accountGroup) {
+            foreach ($accountGroup->accounts as $account) {
+                foreach ($account->entries as $entry) {
+                    $entryDate = Carbon::parse($entry->document->date);
+                    if ($entryDate->between($startDate, $endDate)) {
+                        $monthName = $entryDate->format('M');
+                        $monthlySums[$monthName] += $entry->credit;
+                    }
+                }
+            }
+        }
+        return $monthlySums;
+
+    }
+
+    public function calculateDebitSumByAccountGroup($id, $amount_type  ,$startDate, $endDate)
+    {
+        $accountGroups = AccountGroup::where('type_id', $id)
+            ->where('company_id', session('company_id'))
+            ->with('accounts.entries')
+            ->get();
+
+        $sum_of_acc = [];
+
+        foreach ($accountGroups as $accountGroup) {
+        if ($amount_type == 'debit') {
+            $debitSum = $accountGroup->accounts->sum(function ($account) use ($startDate, $endDate) {
+                return $account->entries->sum(function ($entry) use ($startDate, $endDate) {
+                    $entryDate = Carbon::parse($entry->document->date);
+                    if ($entryDate->between($startDate, $endDate)) {
+                        return intval($entry->debit);
+                    } else {
+                        return 0; // Return 0 for entries outside the specified date range
+                    }
+                });
+            });
+            $sum_of_acc[$accountGroup->name] = $debitSum;
+        } else if ($amount_type == 'credit') {
+            $creditSum = $accountGroup->accounts->sum(function ($account) use ($startDate, $endDate) {
+                return $account->entries->sum(function ($entry) use ($startDate, $endDate) {
+                    $entryDate = Carbon::parse($entry->document->date);
+                    if ($entryDate->between($startDate, $endDate)) {
+                        return intval($entry->credit);
+                    } else {
+                        return 0; // Return 0 for entries outside the specified date range
+                    }
+                });
+            });
+            $sum_of_acc[$accountGroup->name] = $creditSum;
+        }
+    }
+
+
+
+
+        $final_sum = 0;
+        foreach ($sum_of_acc as $acc)
+        {
+            $final_sum += $acc;
+        }
+
+        // return $sum_of_acc;
+        return $final_sum;
+    }
+
 
     public function roleassign()
     {

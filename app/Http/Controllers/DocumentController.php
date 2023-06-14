@@ -414,7 +414,21 @@ class DocumentController extends Controller
 
     public function Accountpdf()
     {
-        $accounts = Account::where('company_id', session('company_id'))->get()
+        $accounts = Account::with(['accountGroup' => function ($query) {
+        $query->orderBy('type_id', 'asc');
+        $query->orderBy('parent_id', 'asc');
+    }])
+    ->where('company_id', session('company_id'))
+    ->get()
+    // ->sortBy(function ($account) {
+    //     return $account->accountGroup->type_id;
+    // })
+    // ->values()
+
+    // $accounts = Account::where('company_id', session('company_id'))
+            // ->orderBy('type_id')
+            // ->orderBy('parent_id')
+            // ->get()
             ->map(function ($account) {
                 return [
                     'id' => $account->id,

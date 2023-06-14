@@ -119,7 +119,15 @@
                     </a>
                 </form>
             </div> -->
-
+            <a
+                class="ant-btn ant-btn-sm ml-2"
+                type="primary"
+                target="_blank"
+                ghost
+                :href="'documents/Accountpdf'"
+            >
+                Download Accounts
+            </a>
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
                 <Table
                     :columns="columns"
@@ -368,8 +376,8 @@ export default {
         // yrch() {
         //   this.$inertia.get(route("companies.yrch", this.yr_id));
         // },
-        yrch() {
-            this.$inertia.get(route("years.yrch", this.yr_id));
+        yrch(value) {
+            this.$inertia.get(route("years.yrch", value));
         },
 
         sort(field) {
@@ -413,7 +421,6 @@ export default {
                     this.form_delete_transaction.selected_arr.indexOf(id);
                 if (index !== -1) {
                     this.form_delete_transaction.selected_arr.splice(index, 1); // Array se value ko nikalna
-                    console.log("Value array se nikali gayi.");
                 }
             } else {
                 this.form_delete_transaction.selected_arr.push(id);
