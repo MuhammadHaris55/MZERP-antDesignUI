@@ -46,10 +46,14 @@ class DashboardController extends Controller
                         $dashboard_variables[] = ['name' => $type->name, 'amount' => number_format($amount,2)];
                         if($type->name == 'Expenses') $expense = $amount;
                     } else {
-                        $amount = $this->calculateDebitSumByAccountGroup($type->id, 'credit', $startDate, $endDate);
-                        $dashboard_variables[] = ['name' => $type->name, 'amount' => number_format($amount,2)];
-                        if($type->name == 'Revenue') $revenue = $amount;
+
+                            $amount = $this->calculateDebitSumByAccountGroup($type->id, 'credit', $startDate, $endDate);
+                            // dd($amount);
+                            $dashboard_variables[] = ['name' => $type->name, 'amount' => number_format($amount,2)];
+                            if($type->name == 'Revenue') $revenue = $amount;
+
                     }
+
 
             }
 
@@ -163,7 +167,18 @@ class DashboardController extends Controller
                     }
                 });
             });
-            $sum_of_acc[$accountGroup->name] = $debitSum;
+            $lessCreditSum = $accountGroup->accounts->sum(function ($account) use ($startDate, $endDate) {
+                return $account->entries->sum(function ($entry) use ($startDate, $endDate) {
+                    $entryDate = Carbon::parse($entry->document->date);
+                    if ($entryDate->between($startDate, $endDate)) {
+                        return intval($entry->credit);
+                    } else {
+                        return 0; // Return 0 for entries outside the specified date range
+                    }
+                });
+            });
+
+            $sum_of_acc[$accountGroup->name] = $debitSum - $lessCreditSum;
         } else if ($amount_type == 'credit') {
             $creditSum = $accountGroup->accounts->sum(function ($account) use ($startDate, $endDate) {
                 return $account->entries->sum(function ($entry) use ($startDate, $endDate) {
@@ -174,8 +189,21 @@ class DashboardController extends Controller
                         return 0; // Return 0 for entries outside the specified date range
                     }
                 });
+
             });
-            $sum_of_acc[$accountGroup->name] = $creditSum;
+             $lessDebitSum = $accountGroup->accounts->sum(function ($account) use ($startDate, $endDate) {
+                return $account->entries->sum(function ($entry) use ($startDate, $endDate) {
+                    $entryDate = Carbon::parse($entry->document->date);
+                    if ($entryDate->between($startDate, $endDate)) {
+                        return intval($entry->debit);
+                    } else {
+                        return 0; // Return 0 for entries outside the specified date range
+                    }
+                });
+            });
+
+
+            $sum_of_acc[$accountGroup->name] = $creditSum - $lessDebitSum;
         }
     }
 
