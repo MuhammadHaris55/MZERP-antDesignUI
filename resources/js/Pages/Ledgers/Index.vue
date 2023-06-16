@@ -4,73 +4,95 @@
             <div class="grid grid-cols-2">
                 <h2 class="font-semibold text-lg text-white p-4">Ledgers</h2>
                 <div class="flex justify-end items-center">
-                    <Select v-model:value="selected" show-search
-                    filterOption="true"
-                    optionFilterProp="name" :options="options" :field-names="{ label: 'name', value: 'id' }" mode="single" placeholder="Please select" showArrow
-                        @change="coch" class="w-1/2" />
+                    <Select
+                        v-model:value="selected"
+                        show-search
+                        filterOption="true"
+                        optionFilterProp="name"
+                        :options="options"
+                        :field-names="{ label: 'name', value: 'id' }"
+                        mode="single"
+                        placeholder="Please select"
+                        showArrow
+                        @change="coch"
+                        class="w-1/2"
+                    />
                 </div>
             </div>
         </template>
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
-
-            <form target="_blank" @submit.prevent="submit_range" v-bind:action="'range/' + form.account_id"
-                ref="form_range">
-                <!-- <multiselect
-        class="
-            ml-2
-            w-full
-            inline-block
-            lg:w-1/4
-            border border-black
-            rounded-md
-            float-left
-          "
-          v-model="form.account_id"
-          :options="option"
-          placeholder="Select account group"
-          label="name"
-          track-by="id"
-          @update:model-value="getledger"
-        ></multiselect> -->
-                <a-select style="width:40%" v-model:value="form.account_id" :options="option"
-                    :field-names="{ label: 'name', value: 'id' }" filterOption="true" optionFilterProp="name" mode="single"
-                    placeholder="Select Account" @change="getledger" showArrow />
-                <a-input style="width:20%" v-model:value="form.date_start" :min="form.start" type="date" :max="form.end"
-                    @change="getledger" name="date_start" />
+            <form
+                target="_blank"
+                @submit.prevent="submit_range"
+                v-bind:action="'range/' + form.account_id"
+                ref="form_range"
+            >
+                <a-select
+                    style="width: 40%"
+                    v-model:value="form.account_id"
+                    :options="option"
+                    show-search
+                    :field-names="{ label: 'name', value: 'id' }"
+                    filterOption="true"
+                    optionFilterProp="name"
+                    mode="single"
+                    placeholder="Select Account"
+                    @change="getledger"
+                    showArrow
+                />
+                <a-input
+                    style="width: 20%"
+                    v-model:value="form.date_start"
+                    :min="form.start"
+                    type="date"
+                    :max="form.end"
+                    @change="getledger"
+                    name="date_start"
+                />
                 <div v-if="errors.date_start">{{ errors.date_start }}</div>
 
-                <a-input style="width:20%" v-model:value="form.date_end" :min="form.start" :max="form.end" type="date"
-                    placeholder="Enter End date:" @change="getledger" name="date_end" />
+                <a-input
+                    style="width: 20%"
+                    v-model:value="form.date_end"
+                    :min="form.start"
+                    :max="form.end"
+                    type="date"
+                    placeholder="Enter End date:"
+                    @change="getledger"
+                    name="date_end"
+                />
                 <div v-if="errors.date_end">{{ errors.date_end }}</div>
-                <Button html-type="submit" type="primary" ghost class="ml-2">Ledger Report</Button>
+                <Button html-type="submit" type="primary" ghost class="ml-2"
+                    >Ledger Report</Button
+                >
 
-                <!-- <div
-          class="
-            border
-            rounded-lg
-            shadow-md
-            p-1
-            px-4
-            mt-1
-            bg-gray-800
-            text-white
-            ml-2
-            inline-block
-            hover:bg-gray-700 hover:text-white
-          "
-        >
-          <button type="submit">Ledger Report</button>
-        </div> -->
                 <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-                    <Table :columns="columns" :data-source="mapped_data" :loading="loading" class="mt-2" size="small">
+                    <Table
+                        :columns="columns"
+                        :data-source="mapped_data"
+                        :loading="loading"
+                        class="mt-2"
+                        size="small"
+                    >
                         <template #bodyCell="{ column, record }">
                             <template v-if="column.key === 'actions'">
                                 <!-- v-if="can['edit'] || can['delete']" -->
-                                <Button size="small" v-if="can['edit']" type="primary" @click="edit(record.id)"
-                                    class="mr-2">Edit</Button>
-                                <Button size="small" v-if="record.delete && can['delete']" danger
-                                    @click="destroy(record.id)">Delete</Button>
+                                <Button
+                                    size="small"
+                                    v-if="can['edit']"
+                                    type="primary"
+                                    @click="edit(record.id)"
+                                    class="mr-2"
+                                    >Edit</Button
+                                >
+                                <Button
+                                    size="small"
+                                    v-if="record.delete && can['delete']"
+                                    danger
+                                    @click="destroy(record.id)"
+                                    >Delete</Button
+                                >
                             </template>
                         </template>
                     </Table>
@@ -160,11 +182,12 @@ export default {
                 },
             ],
 
-
             form: {
-                account_id: this.account_first ? this.account_first['id'] : this.accounts,
+                account_id: this.account_first
+                    ? this.account_first["id"]
+                    : this.accounts,
                 date_start: this.date_start ? this.date_start : this.min_start,
-                date_end: this.date_end ? this.date_end : this.min_start,
+                date_end: this.date_end ? this.date_end : this.max_end,
                 start: this.min_start
                     ? this.min_start
                     : new Date().toISOString().substr(0, 10),

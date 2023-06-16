@@ -53,7 +53,7 @@ class LedgerController extends Controller
             } else {
                 $year = Year::find(session("year_id"));
                 $start = new Carbon($year->begin);
-                $end = new Carbon($year->begin);
+                $end = new Carbon($year->end);
                 $account = $request->input('account_id');
             }
             //------------------------ date acc to date -----------
@@ -138,9 +138,9 @@ class LedgerController extends Controller
                     'ref' => $entry->ref,
                     'date' => $entry->date,
                     'description' => $entry->description,
-                    'debit' => $entry->debit,
-                    'credit' => $entry->credit,
-                    'balance' => $balance[$key],
+                    'debit' => number_format($entry->debit,2),
+                    'credit' => number_format($entry->credit,2),
+                    'balance' => number_format($balance[$key] , 2),
                     // 'delete' => Account::where('group_id', $entry->id)->first() ? false : true,
                 ];
             });
@@ -153,15 +153,15 @@ class LedgerController extends Controller
                 'description' => 'Opening Balance',
                 'debit' => '',
                 'credit' => '',
-                'balance' => $prebal,
+                'balance' => number_format($prebal,2),
             ];
             $last_arr = [
                 'account_id' => '',
                 'ref' => '',
                 'date' => '',
                 'description' => 'Totals',
-                'debit' => $data['debits'],
-                'credit' => $data['credits'],
+                'debit' => number_format($data['debits'],2),
+                'credit' => number_format($data['credits'],2),
                 'balance' => '',
             ];
             //main data to send on frontend VUE
@@ -171,8 +171,8 @@ class LedgerController extends Controller
                 $mapped_data[$a++] = $map_incomp_data;
             }
             $mapped_data[$a] = $last_arr;
-
             // ---------- mapping data for ant-design
+            // dd(number_format($data['debits'] , 2));
             return Inertia::render('Ledgers/Index', [
                 'company' => Company::where('id', session("company_id"))->first(),
                 'companies' => Auth::user()->companies,
@@ -182,8 +182,8 @@ class LedgerController extends Controller
                 'date_end' => $end,
                 'entries' => $data['entries'],
                 'mapped_data' => $mapped_data,
-                'debits' => $data['debits'],
-                'credits' => $data['credits'],
+                'debits' => number_format($data['debits'] , 2),
+                'credits' => number_format($data['credits'],2),
                 'balance' => $balance,
                 'prebal' => $prebal,
                 'min_start' => $date_range->begin,
