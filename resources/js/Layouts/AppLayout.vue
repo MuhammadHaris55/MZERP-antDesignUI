@@ -243,11 +243,8 @@
                 </MenuItem>
                 <MenuItem key="10">
                     <!-- Authentication -->
-                    <form @submit.prevent="logout" style="padding-left: 1.2rem">
-                        <jet-dropdown-link
-                            as="button"
-                            style="margin-left: -2rem"
-                        >
+                    <form @submit.prevent="logout">
+                        <jet-dropdown-link as="button">
                             <LogoutOutlined
                                 v-if="collapsed"
                                 class="icon-on-collapsed"
