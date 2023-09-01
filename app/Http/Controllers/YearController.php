@@ -95,14 +95,11 @@ class YearController extends Controller
     public function create()
     {
         $year = Year::where('company_id', session('company_id'))->latest()->first();
-        $begin = explode('-', $year->begin);
-        $begin[0]++;
-        $end = explode('-', $year->end);
-        $end[0]++;
-        $newBegin = implode('-', $begin);
-        $newEnd = implode('-', $end);
+        $begin = Carbon::createFromFormat('Y-m-d H:i:s', $year->end  . "0:00:00")->addDay(1);
+        $end = Carbon::createFromFormat('Y-m-d H:i:s', $begin)->addYear(1)->addDay(-1);
 
-
+        $newBegin = $begin->format('Y-m-d');
+        $newEnd = $end->format('Y-m-d');
         // dd($newBegin);
         Year::create([
             'begin' => $newBegin,
@@ -180,7 +177,12 @@ class YearController extends Controller
         if(count($comp_year) >> 1)
         {
             $year->delete();
-            if (Year::where('company_id', session('company_id'))->first()) {
+           $y = Year::where('company_id', session('company_id'))->first();
+            if ($y) {
+                $active_yr = Setting::where('user_id', Auth::user()->id)->where('key', 'active_year')->first();
+                $active_yr->value = $y->id;
+                $active_yr->save();
+                session(['year_id' => $y->id]);
                 return Redirect::back()->with('success', 'Year deleted.');
             }
             // else {

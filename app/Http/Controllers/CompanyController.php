@@ -142,17 +142,47 @@ class CompanyController extends Controller
                 'end' => $endDate,
                 'company_id' => $company->id,
             ]);
-            Setting::create([
-                'key' => 'active_company',
-                'value' => $company->id,
-                'user_id' => Auth::user()->id,
-            ]);
 
-            Setting::create([
-                'key' => 'active_year',
-                'value' => $year->id,
-                'user_id' => Auth::user()->id,
-            ]);
+
+            // Setting::create([
+            //     'key' => 'active_company',
+            //     'value' => $company->id,
+            //     'user_id' => Auth::user()->id,
+            // ]);
+
+            // Setting::create([
+            //     'key' => 'active_year',
+            //     'value' => $year->id,
+            //     'user_id' => Auth::user()->id,
+            // ]);
+
+            // session(['company_id' => $company->id]);
+            // session(['year_id' => $year->id]);
+
+             $set_comp = Setting::where('user_id', Auth::user()->id)->where('key', 'active_company')->first();
+            $set_year = Setting::where('user_id', Auth::user()->id)->where('key', 'active_year')->first();
+            if ($set_comp) {
+                $set_comp->value = $company->id;
+                $set_comp->save();
+            } else {
+                // Create Active Company Setting
+                Setting::create([
+                    'key' => 'active_company',
+                    'value' => $company->id,
+                    'user_id' => Auth::user()->id,
+                ]);
+            }
+            if ($set_year) {
+                $set_year->value = $year->id;
+                $set_year->save();
+            } else {
+                // Create Active Year Setting
+                Setting::create([
+                    'key' => 'active_year',
+                    'value' => $year->id,
+                    'user_id' => Auth::user()->id,
+                ]);
+            }
 
             session(['company_id' => $company->id]);
             session(['year_id' => $year->id]);
