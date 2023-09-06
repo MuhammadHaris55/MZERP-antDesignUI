@@ -144,23 +144,10 @@ class CompanyController extends Controller
             ]);
 
 
-            // Setting::create([
-            //     'key' => 'active_company',
-            //     'value' => $company->id,
-            //     'user_id' => Auth::user()->id,
-            // ]);
 
-            // Setting::create([
-            //     'key' => 'active_year',
-            //     'value' => $year->id,
-            //     'user_id' => Auth::user()->id,
-            // ]);
-
-            // session(['company_id' => $company->id]);
-            // session(['year_id' => $year->id]);
-
-             $set_comp = Setting::where('user_id', Auth::user()->id)->where('key', 'active_company')->first();
+            $set_comp = Setting::where('user_id', Auth::user()->id)->where('key', 'active_company')->first();
             $set_year = Setting::where('user_id', Auth::user()->id)->where('key', 'active_year')->first();
+
             if ($set_comp) {
                 $set_comp->value = $company->id;
                 $set_comp->save();
@@ -186,6 +173,38 @@ class CompanyController extends Controller
 
             session(['company_id' => $company->id]);
             session(['year_id' => $year->id]);
+
+
+            //create default Account Group
+            $acc_grp =  AccountGroup::create([
+                'name' => 'Reserves',
+                'type_id' => 3,
+                'company_id' =>  $company->id
+            ]);
+
+            //create default Account
+            $account = Account::create([
+            'name' => 'Retained Eearnings',
+            'group_id' => $acc_grp->id,
+            'company_id' => $company->id
+            ]);
+            $account->update(['number' => snum($account)]);
+
+             $retain_earning = Setting::where('company_id' ,  $company->id)->where('key', 'retain_earning')->first();
+
+            if ($retain_earning) {
+                $retain_earning->company_id = $company->id;
+                $retain_earning->value = $account->id;
+                $set_comp->save();
+            } else {
+                // Create Active Company Setting
+                Setting::create([
+                    'key' => 'retain_earning',
+                    'value' => $account->id,
+                    'user_id' => Auth::user()->id,
+                    'company_id' => $company->id,
+                ]);
+            }
 
             //TO run the seeders class
             // Artisan::call('db:seed', array('--class' => "GroupSeeder"));
@@ -214,6 +233,8 @@ class CompanyController extends Controller
 
     public function update(Company $company)
     {
+
+
         Request::validate([
             'name' => ['required'],
             'address' => ['nullable'],

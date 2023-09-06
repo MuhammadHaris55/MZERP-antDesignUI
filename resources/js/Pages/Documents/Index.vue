@@ -60,16 +60,26 @@
                 v-model="form_delete_transaction.selected_arr"
             />
             <label
-                v-if="isCheckAll"
+                v-if="isCheckAll && yearclosed"
                 class="ant-btn ant-btn-sm ml-2"
                 for="selected"
             >
                 Un-Select All</label
             >
-            <label v-else class="ant-btn ant-btn-sm ml-2" for="selected">
+            <label
+                v-else-if="yearclosed"
+                class="ant-btn ant-btn-sm ml-2"
+                for="selected"
+            >
                 Select All</label
             >
-            <Button danger ghost @click="selete()" class="ml-2" size="small"
+            <Button
+                v-if="yearclosed"
+                danger
+                ghost
+                @click="selete()"
+                class="ml-2"
+                size="small"
                 >Delete</Button
             >
 
@@ -138,27 +148,11 @@
                 >
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'delete'">
-                            <!-- <Checkbox
-                v-if="record.approve"
-                v-model:value="record.name"
-                checked
-              />
-              <Checkbox
-                v-else
-                v-model:value="record.name"
-                v-model:checked="unchecked"
-                @change="updateCheckall()"
-              /> -->
-
                             <input
                                 class="focus:ring-green-500 checkbox-item"
                                 type="checkbox"
                                 @change="updateCheckall(record.id)"
                             />
-                            <!--
-                                v-bind:value="record.id"
-                                v-model="form.selected_arr"
-                            name="selected_arr"-->
                         </template>
                         <template v-if="column.key === 'actions'">
                             <!-- v-if="can['edit'] || can['delete']" -->
@@ -442,7 +436,7 @@ export default {
                 );
                 // this.selected_arr = [];
             } else {
-                alert("Please select file");
+                alert("Please select transaction");
             }
         },
     },

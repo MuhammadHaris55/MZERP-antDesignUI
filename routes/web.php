@@ -148,7 +148,7 @@ Route::get('accountgroups/create', [AccountGroupController::class, 'create'])
     ->middleware('auth');
 
 Route::post('accountgroups/create', [AccountGroupController::class, 'create'])
-    ->name('accountgroups.create')
+    ->name('accountgroups.create.post')
     ->middleware('auth');
 
 Route::get('accountgroups/{accountgroup}', [AccountGroupController::class, 'show'])

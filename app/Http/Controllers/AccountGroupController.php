@@ -12,6 +12,7 @@ use Database\Seeders\AccountSeeder;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request as Req;
+use Illuminate\Validation\Rule;
 
 class AccountGroupController extends Controller
 {
@@ -29,6 +30,7 @@ class AccountGroupController extends Controller
             )
                 ->where('company_id', session('company_id'))
                 ->get();
+
             $mapped_data = $obj_data->map(function ($acc_group, $key) {
                 return [
                     'id' => $acc_group->id,
@@ -37,7 +39,7 @@ class AccountGroupController extends Controller
                     'type_name' => $acc_group->accountType->name,
                     'company_id' => $acc_group->company_id,
                     'company_name' => $acc_group->company->name,
-                    'delete' => Account::where('group_id', $acc_group->id)->first() || AccountGroup::where('company_id', session('company_id'))->where('parent_id', $acc_group->id)->first() ? false : true,
+                    'delete' =>  Account::where('group_id', $acc_group->id)->first() || AccountGroup::where('company_id', session('company_id'))->where('parent_id', $acc_group->id)->first() ? false : true,
                 ];
             });
         } else {
@@ -72,24 +74,6 @@ class AccountGroupController extends Controller
         ]);
     }
 
-    // public function generate()
-    // {
-    //     // $exitCode = Artisan::call('db:seed', [
-    //     //     '--class' => 'TypeSeeder'
-    //     // ]);
-    //     // print_r("hi");
-    //     // die();
-    //     // $this->call([
-    //     //     // UserSeeder::class,
-    //     //     // PostSeeder::class,
-    //     //     // CommentSeeder::class,
-    //     //     // AccountSeeder::class,
-    //     //     GroupSeeder::class,
-    //     // ]);
-    //     return GroupSeeder::class;
-    //     return Redirect::back()->with('success', 'Account Group deleted.');
-    // }
-
     public function create(Req $request)
     {
         if ($request->type_id) {
@@ -112,10 +96,18 @@ class AccountGroupController extends Controller
 
     public function store(Req $request)
     {
+        // Request::validate([
+        //     'type_id' => ['required'],
+        //     'name' => ['required', 'unique:account_groups'],
+        //     'parent_id' => [],
+        // ]);
+        $company_id = session('company_id');
         Request::validate([
-            'type_id' => ['required'],
-            'name' => ['required', 'unique:account_groups'],
-            'parent_id' => [],
+        'type_id' => ['required'],
+        'name' => ['required', Rule::unique('account_groups')->where(function ($query) use ($company_id) {
+            return $query->where('company_id', $company_id);
+        })],
+        'parent_id' => [],
         ]);
         AccountGroup::create([
             'type_id' => Request::input('type_id'),

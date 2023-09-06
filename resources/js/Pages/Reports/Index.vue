@@ -52,12 +52,6 @@
         </template>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
             <a-row>
-                <div
-                    v-if="$page.props.flash.success"
-                    class="bg-green-600 text-white"
-                >
-                    {{ $page.props.flash.success }}
-                </div>
                 <a-col :span="12">
                     <form
                         target="_blank"

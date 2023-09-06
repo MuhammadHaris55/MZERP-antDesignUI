@@ -4,29 +4,66 @@
             <div class="grid grid-cols-2">
                 <h2 class="font-semibold text-lg text-white p-4">Accounts</h2>
                 <div class="flex justify-end items-center">
-                    <Select v-model:value="selected" :options="options" :field-names="{ label: 'name', value: 'id' }"
-                        filterOption="true" optionFilterProp="name" mode="single" placeholder="Please select" showArrow
-                        @change="coch" class="w-1/2" />
+                    <Select
+                        v-model:value="selected"
+                        :options="options"
+                        :field-names="{ label: 'name', value: 'id' }"
+                        filterOption="true"
+                        optionFilterProp="name"
+                        mode="single"
+                        placeholder="Please select"
+                        showArrow
+                        @change="coch"
+                        class="w-1/2"
+                    />
                 </div>
             </div>
         </template>
 
-
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
-            <Button v-if="can['create']" size="small" @click="create" class="ml-2">Create Account</Button>
+            <Button
+                v-if="can['create']"
+                size="small"
+                @click="create"
+                class="ml-2"
+                >Create Account</Button
+            >
 
-            <InputSearch class="ml-2" size="small" v-model:value="search" placeholder="input search text"
-                style="width: 200px" @search="onSearch" />
+            <InputSearch
+                class="ml-2"
+                size="small"
+                v-model:value="search"
+                placeholder="input search text"
+                style="width: 200px"
+                @search="onSearch"
+            />
 
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-                <Table :columns="columns" :data-source="mapped_data" :loading="loading" class="mt-2" size="small">
+                <Table
+                    :columns="columns"
+                    :data-source="mapped_data"
+                    :loading="loading"
+                    class="mt-2"
+                    size="small"
+                >
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'actions'">
                             <!-- v-if="can['edit'] || can['delete']" -->
-                            <Button size="small" v-if="can['edit']" type="primary" @click="edit(record.id)"
-                                class="mr-2">Edit</Button>
-                            <Button size="small" v-if="record.delete && can['delete']" danger
-                                @click="destroy(record.id)">Delete</Button>
+                            <Button
+                                size="small"
+                                v-if="can['edit']"
+                                type="primary"
+                                @click="edit(record.id)"
+                                class="mr-2"
+                                >Edit</Button
+                            >
+                            <Button
+                                size="small"
+                                v-if="record.delete && can['delete']"
+                                danger
+                                @click="destroy(record.id)"
+                                >Delete</Button
+                            >
                         </template>
                     </template>
                 </Table>
@@ -149,7 +186,8 @@ export default {
 
         sort(field) {
             this.params.field = field;
-            this.params.direction = this.params.direction === "asc" ? "desc" : "asc";
+            this.params.direction =
+                this.params.direction === "asc" ? "desc" : "asc";
         },
         search_data() {
             let params = pickBy(this.params);

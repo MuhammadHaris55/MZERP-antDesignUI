@@ -28,11 +28,11 @@ class DocumentController extends Controller
             'field' => ['in:name,email']
         ]);
 
-        $acc = Account::where('company_id', session('company_id'))->first();
+        $acc = Account::where('company_id', session('company_id'))->count();
         $doc_ty = DocumentType::where('company_id', session('company_id'))->first();
 
         $yearclosed = year::where('id', session('year_id'))->where('closed', 0)->first();
-        if ($acc && $doc_ty) {
+        if ($acc >= 2  && $doc_ty) {
 
             if (request()->has('search')) {
                 $search_word = $req->search;
@@ -97,6 +97,7 @@ class DocumentController extends Controller
                         'read' => auth()->user()->can('read'),
                     ],
                     'mapped_data' => $mapped_data,
+
                     // 'data' => $docs,
                     'yearclosed' => $yearclosed,
                     'filters' => request()->all(['search', 'field', 'direction']),
@@ -133,7 +134,7 @@ class DocumentController extends Controller
                         )->first(),
                 ]
             );
-        } elseif ($acc) {
+        } elseif ($acc >= 2) {
             return Redirect::route('documenttypes')->with('warning', 'VOUCHER NOT FOUND, Please create voucher first.');
         } else {
             return Redirect::route('accounts')->with('warning', 'ACCOUNT NOT FOUND, Please create an account first.');

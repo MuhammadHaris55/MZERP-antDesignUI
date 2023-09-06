@@ -38,7 +38,7 @@ class YearController extends Controller
                     $begin = new Carbon($year->begin),
                     $end = new Carbon($year->end),
                     'id' => $year->id,
-                    'closed' => $year->closed,
+                    'closed' => $year->closed == 0 || Document::where('year_id', $year->id)->first() ? true : false,
                     'begin' => $begin->format('F,j Y'),
                     'end' => $end->format('F,j Y'),
                     'company_name' => $year->company->name,
@@ -58,7 +58,7 @@ class YearController extends Controller
                     $begin = new Carbon($year->begin),
                     $end = new Carbon($year->end),
                     'id' => $year->id,
-                    'closed' => $year->closed,
+                     'closed' => $year->closed == 0 && Document::where('year_id', $year->id)->first() ? true : false,
                     'begin' => $begin->format('F,j Y'),
                     'end' => $end->format('F,j Y'),
                     'company_name' => $year->company->name,
@@ -207,10 +207,19 @@ class YearController extends Controller
 
     public function close($id)
     {
-        DB::transaction(function () use ($id) {
+
+        $claccount = null;
+        $cls_acc_id = Setting::where('company_id', session('company_id'))->where('key', 'retain_earning')->first();
+
+        if($cls_acc_id){
+            $claccount = Account::find($cls_acc_id->value);
+        }else{
+            return Redirect::route('years')->with('warning', "Retain Earnings Account Not Found" );
+        }
+        DB::transaction(function () use ($id , $claccount) {
             $year =  \App\Models\Year::where('company_id', session('company_id'))->where('id', $id)->first();
             $yearef = Carbon::parse($year->end);
-            $claccount = null;
+
             // $clgroup = null;
             // if (!Account::where('company_id', session('company_id'))->where('name', 'Accumulated Profit')->first()) {
                 // if (!AccountGroup::where('company_id', session('company_id'))->where('name', 'Reserves')->first()) {
@@ -228,7 +237,7 @@ class YearController extends Controller
             //         'company_id' => session('company_id'),
             //     ]);
             // } else {
-                $claccount = Account::where('company_id', session('company_id'))->where('name', 'Accumulated Profit')->first();
+
             // }
 
 
@@ -299,7 +308,6 @@ class YearController extends Controller
 
             $year->update(['closed' => 1]);
         });
-        session()->flash('message', 'Fiscal Year closed successfully.');
-        return Redirect::route('reports');
+        return Redirect::route('reports')->with('success', 'Fiscal Year closed successfully.');
     }
 }

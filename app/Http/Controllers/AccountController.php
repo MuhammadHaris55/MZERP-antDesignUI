@@ -4,16 +4,18 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
-// use Illuminate\Http\Request as Req;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Entry;
 use App\Models\AccountGroup;
+use App\Models\Setting;
 use Inertia\Inertia;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request as Req;
+use Illuminate\Validation\Rule;
+
 
 class AccountController extends Controller
 {
@@ -39,20 +41,26 @@ class AccountController extends Controller
             //         request('direction')
             //     );
             // }
+            $retain =   Setting::where('company_id', session('company_id'))->where('key' , 'retain_earning')->first();
+            if($retain){
+               $retain =  $retain->value;
+            }else{
+                $retain = 0;
+            }
 
             $balances = $query
                 ->where('company_id', session('company_id'))
                 ->paginate(10)
                 ->withQueryString()
                 ->through(
-                    function ($account) {
+                    function ($account) use ($retain) {
                         return
                             [
                                 'id' => $account->id,
                                 'name' => $account->name,
                                 // 'group_id' => $account->parent_id,
                                 'group_name' => $account->accountGroup->name,
-                                'delete' => Entry::where('account_id', $account->id)->first() ? false : true,
+                                'delete' => $retain == $account->id || Entry::where('account_id', $account->id)->first() ? false : true,
                             ];
                     }
                 );
@@ -67,25 +75,25 @@ class AccountController extends Controller
                     ,'LIKE', '%'.$req->search.'%')
                 ->where('company_id', session('company_id'))
                 ->get();
-                $mapped_data = $obj_data->map(function($account, $key) {
+                $mapped_data = $obj_data->map(function($account, $key) use ($retain) {
                 return [
                         'id' => $account->id,
                         'name' => $account->name,
                         // 'group_id' => $account->parent_id,
                         'group_name' => $account->accountGroup->name,
-                        'delete' => Entry::where('account_id', $account->id)->first() ? false : true,
+                        'delete' => $retain == $account->id || Entry::where('account_id', $account->id)->first() ? false : true,
                     ];
                 });
             }
             else{
                 $obj_data = Account::where('company_id', session('company_id'))->get();
-                $mapped_data = $obj_data->map(function($account, $key) {
+                $mapped_data = $obj_data->map(function($account, $key) use ($retain) {
                 return [
                         'id' => $account->id,
                         'name' => $account->name,
                         // 'group_id' => $account->parent_id,
                         'group_name' => $account->accountGroup->name,
-                        'delete' => Entry::where('account_id', $account->id)->first() ? false : true,
+                        'delete' => $retain == $account->id || Entry::where('account_id', $account->id)->first() ? false : true,
                     ];
                 });
             }
@@ -127,21 +135,23 @@ class AccountController extends Controller
     public function store(Req $request)
     {
 
-        // dd(Request::input('name'));
-
+        $company_id = session('company_id');
+        $group_id = Request::input('group');
         Request::validate([
-            'name' => ['required'],
-            // 'number' => ['nullable'],
+            'name' => ['required', Rule::unique('accounts')->where(function ($query) use ($company_id, $group_id) {
+            return $query->where('company_id', $company_id)
+                        ->where('group_id', $group_id);
+            })],
             'group' => ['required'],
         ]);
 
         $account = Account::create([
             'name' => Request::input('name'),
             // 'number' => Request::input('number'),
-            'group_id' => Request::input('group'),
-            'company_id' => session('company_id'),
+            'group_id' =>  $group_id,
+            'company_id' => $company_id,
         ]);
-        $account->update(['number' => $this->snum($account)]);
+        $account->update(['number' => snum($account)]);
 
         return Redirect::route('accounts')->with('success', 'Account created.');
     }
@@ -187,29 +197,4 @@ class AccountController extends Controller
 
 
 
-    // TO generate account number automatically
-    function snum($account)
-    {
-        $ty = $account->accountGroup->accountType;
-        $grs = $ty->accountGroups->where('company_id', session('company_id'));
-        $grindex = 1;
-        $grselindex = 0;
-        $grsel = null;
-        $number = 0;
-        foreach ($grs as $gr) {
-            if ($gr->name == $account->accountGroup->name) {
-                $grselindex = $grindex;
-                $grsel = $gr;
-            }
-            ++$grindex;
-        }
-        if (count($grsel->accounts) == 1) {
-            $number = $ty->id . sprintf("%'.03d", $grselindex) . sprintf("%'.03d", 1);
-        } else {
-            $lastac = Account::orderBy('id', 'desc')->where('company_id', session('company_id'))->where('group_id', $grsel->id)->skip(1)->first()->number;
-            $lastst = Str::substr($lastac, 4, 3);
-            $number = $ty->id . sprintf("%'.03d", $grselindex) . sprintf("%'.03d", ++$lastst);
-        }
-        return $number;
-    }
 }
