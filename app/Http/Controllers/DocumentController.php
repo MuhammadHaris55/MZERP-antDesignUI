@@ -419,7 +419,7 @@ class DocumentController extends Controller
         $query->orderBy('type_id', 'asc');
         $query->orderBy('parent_id', 'asc');
     }])
-    ->where('company_id', session('company_id'))
+    ->where('company_id', session('company_id'))->orderBy('number','asc')
     ->get()
     // ->sortBy(function ($account) {
     //     return $account->accountGroup->type_id;
