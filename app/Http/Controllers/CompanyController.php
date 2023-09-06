@@ -188,7 +188,7 @@ class CompanyController extends Controller
             'group_id' => $acc_grp->id,
             'company_id' => $company->id
             ]);
-            $account->update(['number' => snum($account)]);
+            $account->update(['number' => $this->snum($account)]);
 
              $retain_earning = Setting::where('company_id' ,  $company->id)->where('key', 'retain_earning')->first();
 

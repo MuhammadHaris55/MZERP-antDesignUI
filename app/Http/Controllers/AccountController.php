@@ -151,7 +151,7 @@ class AccountController extends Controller
             'group_id' =>  $group_id,
             'company_id' => $company_id,
         ]);
-        $account->update(['number' => snum($account)]);
+        $account->update(['number' => $this->snum($account)]);
 
         return Redirect::route('accounts')->with('success', 'Account created.');
     }
