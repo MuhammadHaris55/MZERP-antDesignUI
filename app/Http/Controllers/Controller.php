@@ -7,6 +7,8 @@ use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
 use app\Models\Account;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class Controller extends BaseController
 {
