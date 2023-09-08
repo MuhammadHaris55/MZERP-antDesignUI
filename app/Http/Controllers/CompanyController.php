@@ -14,16 +14,17 @@ use Egulias\EmailValidator\Warning\Warning;
 use Inertia\Inertia;
 use Artisan;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Database\Seeder;
-
-
-use App;
+use Illuminate\Database\Seeder;use App;
 use App\Models\AccountType;
 use App\Models\Document;
 use App\Models\Entry;
 use App\Models\DocumentType;
 use Carbon\Carbon;
-
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
+use Illuminate\Http\Request as Req;
+use Illuminate\Validation\Rule;
 
 class CompanyController extends Controller
 {
