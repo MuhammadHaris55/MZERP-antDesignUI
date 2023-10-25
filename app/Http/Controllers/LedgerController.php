@@ -284,8 +284,6 @@ class LedgerController extends Controller
 
     public function getledger($id)
     {
-        dd($id);
-
 
         if ($id) {
             $account_first = \App\Models\Account::all()->where('account_id', request('account_id'))->map->only('id', 'name')->first();

@@ -20,23 +20,42 @@ use App\Models\DocumentType;
 use App\Models\User;
 use Inertia\Inertia;
 use Carbon\Carbon;
-
+use \PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Illuminate\Support\Facades\DB;
-// use Crypt;
+use PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf;
+use \PhpOffice\PhpSpreadsheet\Style\Style;
+use \PhpOffice\PhpSpreadsheet\Style\Border;
 use Illuminate\Support\Facades\Crypt;
 use PDF;
+use NumberFormatter;
+use DateTimeZone;
 
 class ReportController extends Controller
 {
     public function index()
     {
-        $accounts = \App\Models\Account::all()->where('company_id', session('company_id'))->map->only('id', 'name');
-        $account_first = \App\Models\Account::all()->where('company_id', session('company_id'))->map->only('id', 'name')->first();
+         $a = [
+                'id' => 0,
+                'name' => 'All',
+            ];
+        $accounts = \App\Models\Account::where('company_id', session('company_id'))->get()->map(function($row){
+            return [
+                'id' => $row->id,
+                'name' => $row->name,
+            ];
+        })->toArray();
+        if(count($accounts) > 0){
+            array_unshift($accounts, $a);
+        }
+        // $account_first = \App\Models\Account::all()->where('company_id', session('company_id'))->map->only('id', 'name')->first();
         $date_range = Year::where('id', session('year_id'))->first();
+
         return Inertia::render('Reports/Index', [
             'min_start' => $date_range->begin,
             'max_end' => $date_range->end,
-            'account_first' => $account_first,
+            // 'account_first' => $account_first,
             'accounts' => $accounts,
             'company' => Company::where('id', session('company_id'))->first(),
             'companies' => Auth::user()->companies,
@@ -93,7 +112,7 @@ class ReportController extends Controller
             ->where('entries.account_id', '=', Crypt::decrypt($id))
             ->get();
 
-        //        $entries = Entry::where('account_id',Crypt::decrypt($id))->where('company_id',session('company_id'))->get();
+        //$entries = Entry::where('account_id',Crypt::decrypt($id))->where('company_id',session('company_id'))->get();
         $period = "From " . strval($year->begin) . " to " . strval($year->end);
         $pdf = PDF::loadView('led', compact('entries', 'previous', 'year', 'period', 'acc'));
         return $pdf->stream($acc->name . ' - ' . $acc->accountGroup->name . '.pdf');
@@ -103,29 +122,7 @@ class ReportController extends Controller
     // public function rangeLedger($account_id, $date_start, $date_end)
     public function rangeLedger(Req $request)
     {
-        // dd($account_id . '  ' . $date_start . ' ' . $date_end);
-        // $account_id = $request->input('account_id');
-        // $account_id = $request->input('date_start');
-        // dd($account_id);
 
-
-        // Request::validate([
-        //     $request->account_id => ['required'],
-        //     $request->date_start => ['required'],
-        //     $request->date_end => ['required'],
-        //     // 'account_id' => ['required'],
-        //     // 'date_start' => ['required'],
-        //     // 'date_end' => ['required'],
-        // ]);
-
-        // $acc_id = Request::input('account_id');
-        // dd($acc_id);
-        // 'address' => Request::input('address'),
-        // $date = new Carbon($request->date);
-
-        // $start = new Carbon(Request::input('date_start'));
-        // $end = new Carbon(Request::input('date_end'));
-        // $account = Request::input('account_id');
 
         $start = new Carbon($request->input('date_start'));
         $end = new Carbon($request->input('date_end'));
@@ -133,27 +130,6 @@ class ReportController extends Controller
 
         $start = $start->format('Y-m-d');
         $end = $end->format('Y-m-d');
-
-
-        // $start = $request->input('date_start');
-        // $end = $request->input('date_end');
-        // $account = $request->input('account_id');
-
-        // $start = "2021-09-03";
-        // $end = "2021-09-23";
-
-
-
-        // $account = $account_id;
-        // $start = new Carbon($date_start);
-        // $end = new Carbon($date_end);
-
-        // $start = $start->format('Y-m-d');
-        // $end = $end->format('Y-m-d');
-
-        // $start = "skjdf";
-        // $end = "skjdf";
-        // $account = 47;
 
         $entries = DB::table('documents')
             ->join('entries', 'documents.id', '=', 'entries.document_id')
@@ -196,61 +172,20 @@ class ReportController extends Controller
             ->where('entries.account_id', '=', $account)
             ->get();
 
-        // dd(session('company_id'));
         // dd($account);
         $data['acc'] = Account::where('id', '=', $account)->where('company_id', session('company_id'))->first();
         $data['period'] = "From " . strval($start) . " to " . strval($end);
-        // $pdf = PDF::loadView('range', compact('entries', 'previous', 'acc', 'period', 'start'));
-        // dd($data['entries']);
-        // dd($acc->accountGroup->name);
 
-        // dd($data['acc']);
         $a = "hello world";
         $pdf = App::make('dompdf.wrapper');
-        // $pdf->loadView('ledger', compact('a'));
-        // return $pdf->stream('v.pdf');
+
 
         $pdf = PDF::loadView('range', $data);
-        // $pdf = PDF::loadView('ledger', compact('entries', 'previous', 'acc', 'period', 'start'));
-
-        // $pdf = PDF::loadView('range', $data);
-
-
-        // $pdf = PDF::loadView('range', compact('entries', 'previous', 'acc', 'period', 'start'));
 
 
         return $pdf->stream($acc->name . ' - ' . $acc->accountGroup->name . '.pdf');
         return $pdf->stream('hi.pdf');
     }
-
-
-    // public function ledger($id)
-    // {
-    //     $year = Year::where('company_id', session('company_id'))->where('enabled', 1)->first();
-    //     $acc = Account::where('company_id', session('company_id'))->where('id', Crypt::decrypt($id))->first();
-
-    //     $entries = DB::table('documents')
-    //         ->join('entries', 'documents.id', '=', 'entries.document_id')
-    //         ->whereDate('documents.date', '>=', $year->begin)
-    //         ->whereDate('documents.date', '<=', $year->end)
-    //         ->where('documents.company_id', session('company_id'))
-    //         ->select('entries.account_id', 'entries.debit', 'entries.credit', 'documents.ref', 'documents.date', 'documents.description')
-    //         ->where('entries.account_id', '=', Crypt::decrypt($id))
-    //         ->get();
-
-    //     $previous = DB::table('documents')
-    //         ->join('entries', 'documents.id', '=', 'entries.document_id')
-    //         ->whereDate('documents.date', '<', $year->begin)
-    //         ->where('documents.company_id', session('company_id'))
-    //         ->select('entries.debit', 'entries.credit')
-    //         ->where('entries.account_id', '=', Crypt::decrypt($id))
-    //         ->get();
-
-    //     //        $entries = Entry::where('account_id',Crypt::decrypt($id))->where('company_id',session('company_id'))->get();
-    //     $period = "From " . strval($year->begin) . " to " . strval($year->end);
-    //     $pdf = PDF::loadView('led', compact('entries', 'previous', 'year', 'period', 'acc'));
-    //     return $pdf->stream($acc->name . ' - ' . $acc->accountGroup->name . '.pdf');
-    // }
 
     // FOR LEDGER GENERATION -------------------------- END --------
 
@@ -282,19 +217,6 @@ class ReportController extends Controller
 
 
     // ----------------------- FOR trialbalance GENERATION -------------------------- --------
-    // public function trialbalance()
-    // {
-    //     // $data['accounts'] = Account::where('company_id', session('company_id'))->get();
-    //     $data['account_groups'] = AccountGroup::where('company_id', session('company_id'))->get();
-    //     $data['entry_obj'] = Entry::where('company_id', session('company_id'))
-    //         // ->where('year_id', session('year_id'))
-    //         ->get();
-    //     $tb = App::make('dompdf.wrapper');
-    //     // $pdf->loadView('pdf', compact('a'));
-    //     $tb->loadView('trial', $data);
-    //     // $tb->loadView('trialbalance', $data);
-    //     return $tb->stream('v.pdf');
-    // }
     //Accordign to date
     public function trialbalance_accToDate(Req $request)
     {
@@ -315,15 +237,8 @@ class ReportController extends Controller
 
     public function bs()
     {
-        // $pdf = app('dompdf.wrapper');
-        // $pdf->getDomPDF()->set_option("enable_php", true);
-        // $pdf->loadView('balanceSheet');
-        // return $pdf->stream('branches.pdf');
 
-
-        // $pdf = PDF::loadView('balanceSheet');
         $bs = App::make('dompdf.wrapper');
-        // $bs->getDomPDF()->set_option("enable_php", true);
         $bs->loadView('balanceSheet');
         return $bs->stream('bs.pdf');
     }
@@ -346,12 +261,250 @@ class ReportController extends Controller
     public function pl_accToDate(Req $request)
     {
         $data['date'] = $request->date;
-        // dd($data);
         $pl = App::make('dompdf.wrapper');
         $pl->loadView('profitOrLoss', $data);
         return $pl->stream('pl.pdf');
     }
 
+
+
+    public function multi_ledger_pdf($data){
+
+        $request = json_decode($data, true);
+        if(count($request['account']) > 0){
+             if (in_array("0", $request['account']))
+            {
+                $accounts = Account::where('company_id', session('company_id'))->get();
+            }
+            else
+            {
+                 $accounts = Account::where('company_id', session('company_id'))->whereIn('id',$request['account'])->get();
+            }
+
+             if ($accounts) {
+                $year = Year::where('id', session('year_id'))->first();
+                $start = new Carbon($year->begin);
+                $start = $start->format('Y-m-d');
+                $end = new Carbon($request['date']);
+                $end = $end->format('Y-m-d');
+                $spreadsheet = new Spreadsheet();
+
+                foreach ($accounts as $key => $account) {
+
+                $this->multi_ledger($spreadsheet , $key, $account, $start, $end );
+
+                }
+
+                $writer1 = new \PhpOffice\PhpSpreadsheet\Writer\Pdf\Mpdf($spreadsheet);
+                $writer1->writeAllSheets();
+                $writer1->save(storage_path('app/public/multiLedger.pdf'));
+                return response()->download(storage_path('app/public/multiLedger.pdf'))->deleteFileAfterSend(true);
+
+            } else {
+                $comp = Company::find(session('company_id'));
+                return redirect()->back()->with('warning', 'Account not found in ' . $comp->name . ' company, Upload trial to generate accounts');
+            }
+
+        }else{
+            return redirect()->back()->with('warning', 'Please Select Account Fields is Required');
+        }
+
+
+
+    }
+
+    public function multi_ledger_ex($data){
+
+        $request = json_decode($data, true);
+        if(count($request['account']) > 0){
+            if (in_array("0", $request['account']))
+            {
+                $accounts = Account::where('company_id', session('company_id'))->get();
+            }
+            else
+            {
+                 $accounts = Account::where('company_id', session('company_id'))->whereIn('id',$request['account'])->get();
+            }
+
+            if ($accounts) {
+                $year = Year::where('id', session('year_id'))->first();
+                $start = new Carbon($year->begin);
+                $start = $start->format('Y-m-d');
+                $end = new Carbon($request['date']);
+                $end = $end->format('Y-m-d');
+                $spreadsheet = new Spreadsheet();
+
+                foreach ($accounts as $key => $account) {
+                    $this->multi_ledger($spreadsheet , $key, $account, $start, $end );
+                }
+
+                $writer = new Xlsx($spreadsheet);
+                $writer->save(storage_path('app/public/' . 'multi-ledger.xlsx'));
+                return response()->download(storage_path('app/public/' . 'multi-ledger.xlsx'))->deleteFileAfterSend(true);
+
+
+            } else {
+                $comp = Company::find(session('company_id'));
+                return redirect()->back()->with('warning', 'Account not found in ' . $comp->name . ' company, Upload trial to generate accounts');
+            }
+
+        }else{
+            return redirect()->back()->with('warning', 'Please Select Account Fields is Required');
+        }
+
+
+    }
+
+    public function multi_ledger($spreadsheet , $key, $account , $start, $end ){
+
+
+        $worksheet1 = $spreadsheet->createSheet($key);
+
+        $entries = DB::table('documents')
+            ->join('entries', 'documents.id', '=', 'entries.document_id')
+            ->whereDate('documents.date', '>=', $start)
+            ->whereDate('documents.date', '<=', $end)
+            ->where('documents.company_id', session('company_id'))
+            ->orderBy('documents.date', 'Asc')
+            ->select('entries.account_id', 'entries.debit', 'entries.credit', 'documents.ref', 'documents.date', 'documents.description')
+            ->where('entries.account_id', '=', $account->id)
+            ->get();
+        $previous = DB::table('documents')
+            ->join('entries', 'documents.id', '=', 'entries.document_id')
+            ->whereDate('documents.date', '<', $start)
+            ->where('documents.company_id', session('company_id'))
+            ->orderBy('documents.date', 'Asc')
+            ->select('entries.debit', 'entries.credit')
+            ->where('entries.account_id', '=', $account->id)
+            ->get();
+
+        $acc = Account::where('id', '=', $account->id)->where('company_id', session('company_id'))->first();
+        $period = "From " . strval($start) . " to " . strval($end);
+
+
+        // $data['start'] = $start;
+        $data['start'] = $start;
+
+
+
+        $data['entries'] = DB::table('documents')
+            ->join('entries', 'documents.id', '=', 'entries.document_id')
+            ->whereDate('documents.date', '>=', $start)
+            ->whereDate('documents.date', '<=', $end)
+            ->where('documents.company_id', session('company_id'))
+            ->orderBy('documents.date', 'Asc')
+            ->select('entries.account_id', 'entries.debit', 'entries.credit', 'documents.ref', 'documents.date', 'documents.description')
+            ->where('entries.account_id', '=', $account->id)
+            ->get();
+
+        $data['previous'] = DB::table('documents')
+            ->join('entries', 'documents.id', '=', 'entries.document_id')
+            ->whereDate('documents.date', '<', $start)
+            ->where('documents.company_id', session('company_id'))
+            ->orderBy('documents.date', 'Asc')
+            ->select('entries.debit', 'entries.credit')
+            ->where('entries.account_id', '=', $account->id)
+            ->get();
+
+        $data['acc'] = Account::where('id', '=',$account->id)->where('company_id', session('company_id'))->first();
+        $data['period'] = "From " . strval($start) . " to " . strval($end);
+    $spreadsheet->getDefaultStyle()->getAlignment()->setWrapText(true);
+        foreach (range('A', 'F') as $k => $col) {
+            if($col == 'C'){
+                $spreadsheet->getSheet($key)->getColumnDimension('C')->setWidth(40);
+            }else{
+                $spreadsheet->getSheet($key)->getColumnDimension($col)->setAutoSize(true);
+            }
+
+
+        }
+
+            $spreadsheet->getSheet($key)->getStyle('A:F')->getAlignment()->setHorizontal('center');
+            $spreadsheet->getSheet($key)->getStyle('A3')->getAlignment()->setHorizontal('left');
+            $spreadsheet->getSheet($key)->getStyle('C')->getAlignment()->setHorizontal('left');
+            $spreadsheet->getSheet($key)->getStyle('C7')->getAlignment()->setHorizontal('center');
+
+             $fmt = new NumberFormatter( 'en_GB', NumberFormatter::CURRENCY );
+            $amt = new NumberFormatter( 'en_GB', NumberFormatter::SPELLOUT );
+            $fmt->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 0);
+            $fmt->setSymbol(NumberFormatter::CURRENCY_SYMBOL, '');
+        //Default Variables
+        $prebal = 0;
+        $lastbalance = 0;
+        $ite = 0;
+        $debits = 0;
+        $credits = 0;
+
+         if ($previous->count()) {
+            foreach ($previous as $value) {
+                $prebal= $lastbalance + floatval($value->debit) - floatval($value->credit);
+                $lastbalance = $prebal;
+                $ite++;
+            }
+        }
+        $balance = [];
+        $ite = 0;
+        foreach ($entries as $value) {
+            $balance[$ite]= $lastbalance + floatval($value->debit) - floatval($value->credit);
+            $lastbalance = $balance[$ite];
+            $ite++;
+        }
+        $dt = \Carbon\Carbon::now(new DateTimeZone('Asia/Karachi'))->format('M d, Y - h:m a');
+
+        $spreadsheet->getDefaultStyle()->getFont()->setName('Arial');
+        $spreadsheet->getDefaultStyle()->getFont()->setSize(10);
+
+
+
+        $spreadsheet->getSheet($key)->mergeCells('A3:C3');
+        $spreadsheet->getSheet($key)->mergeCells('D3:F3');
+        $spreadsheet->getSheet($key)->mergeCells('D4:F4');
+
+
+        $spreadsheet->getSheet($key)->fromArray(['Ledger :' . $acc->name . ' - '. $acc->accountGroup->name], NULL, 'A3');
+        $spreadsheet->getSheet($key)->fromArray([$data['period']], NULL, 'D3');
+        $spreadsheet->getSheet($key)->fromArray(['Generated on :'. $dt], NULL, 'D4');
+
+
+
+        $spreadsheet->getSheet($key)->fromArray(['Ref'], NULL, 'A7');
+        $spreadsheet->getSheet($key)->fromArray(['Date'], NULL, 'B7');
+        $spreadsheet->getSheet($key)->fromArray(['Description'], NULL, 'C7');
+        $spreadsheet->getSheet($key)->fromArray(['Debit'], NULL, 'D7');
+        $spreadsheet->getSheet($key)->fromArray(['Credit'], NULL, 'E7');
+        $spreadsheet->getSheet($key)->fromArray(['Balance'], NULL, 'F7');
+
+        $spreadsheet->getSheet($key)->fromArray([$start], NULL, 'B8');
+        $spreadsheet->getSheet($key)->fromArray(['Opening Balance'], NULL, 'C8');
+        $spreadsheet->getSheet($key)->fromArray([str_replace(['Rs.','.00'],'',$fmt->formatCurrency($prebal,'Rs.'))], NULL, 'F8');
+
+
+
+
+        $e = 9;
+        foreach ($entries as $k => $entry){
+
+        $spreadsheet->getSheet($key)->fromArray([$entry->ref], NULL, 'A'.$e);
+        $spreadsheet->getSheet($key)->fromArray([$entry->date], NULL, 'B'.$e);
+        $spreadsheet->getSheet($key)->fromArray([$entry->description], NULL, 'C'.$e);
+        $spreadsheet->getSheet($key)->fromArray([str_replace(['Rs.','.00'],'',$fmt->formatCurrency($entry->debit,'Rs.'))], NULL, 'D'.$e);
+        $spreadsheet->getSheet($key)->fromArray([str_replace(['Rs.','.00'],'',$fmt->formatCurrency($entry->credit,'Rs.'))], NULL, 'E'.$e);
+        $spreadsheet->getSheet($key)->fromArray([str_replace(['Rs.','.00'],'',$fmt->formatCurrency($balance[$k],'Rs.'))], NULL, 'F'.$e);
+        $debits = $debits + $entry->debit;
+        $credits = $credits + $entry->credit;
+        $e++;
+        }
+
+
+
+        $spreadsheet->getSheet($key)->fromArray([str_replace(['Rs.','.00'],'',$fmt->formatCurrency($debits,'Rs.'))], NULL, 'D'.$e);
+        $spreadsheet->getSheet($key)->fromArray([str_replace(['Rs.','.00'],'',$fmt->formatCurrency($credits,'Rs.'))], NULL, 'E'.$e);
+
+         $spreadsheet->getSheet($key)->getStyle('A7:'.'F'.$e)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_DOUBLE);
+
+
+
+    }
 
     public function create()
     {

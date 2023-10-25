@@ -57,6 +57,17 @@ Route::get('reports', [ReportController::class, 'index'])
     ->name('reports')
     ->middleware('auth');
 
+
+// For Excel
+
+Route::get('multi-ledger/{data}', [ReportController::class, 'multi_ledger_ex'])
+    ->name('multi_ledger_ex')
+    ->middleware('auth');
+// for PDF
+    Route::get('multi-ledger-pdf/{data}', [ReportController::class, 'multi_ledger_pdf'])
+    ->name('multi_ledger_pdf')
+    ->middleware('auth');
+
 // ------------ This function is generating on screen ledger -----------------------------
 Route::get('ledgers', [LedgerController::class, 'index'])
     ->name('ledgers')
@@ -66,6 +77,8 @@ Route::get('ledgers', [LedgerController::class, 'index'])
 Route::get('range/{id}', [LedgerController::class, 'rangeLedger'])
     ->name('range')
     ->middleware('auth');
+
+
 
 // Route::get('ledgers/getledger/{id}', [LedgerController::class, 'getledger'])
 //     // ->name('getledger.onscreen');

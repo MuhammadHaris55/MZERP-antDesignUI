@@ -4,25 +4,6 @@
             <div class="grid grid-cols-2">
                 <h2 class="font-semibold text-lg text-white p-4">Reports</h2>
                 <div class="justify-end">
-                    <!-- <select
-            v-model="yr_id"
-            class="
-              pr-2
-              ml-2
-              pb-2
-              text-gray-700
-              w-full
-              lg:w-5/12
-              rounded-md
-              float-right
-            "
-            label="year"
-            @change="yrch"
-          >
-            <option v-for="type in years" :key="type.id" :value="type.id">
-              {{ type.name }}
-            </option>
-          </select> -->
                     <Select
                         v-model:value="selected_year"
                         :options="years"
@@ -142,6 +123,102 @@
                     </form>
                 </a-col>
             </a-row>
+            <br />
+            <div class="grid grid-cols-4 gap-1">
+                <div class="col-span-3">
+                    <form
+                        @submit.prevent="submit_multi_ledger_range"
+                        ref="form_multi_ledger_range"
+                        v-bind:action="
+                            'multi-ledger/' +
+                            JSON.stringify(this.form_multi_ledger)
+                        "
+                    >
+                        <div class="grid grid-cols-3 gap-1">
+                            <div class="col-span-1">
+                                <Select
+                                    v-model:value="form_multi_ledger.account"
+                                    :options="accounts"
+                                    :field-names="{
+                                        label: 'name',
+                                        value: 'id',
+                                    }"
+                                    filterOption="true"
+                                    optionFilterProp="name"
+                                    mode="multiple"
+                                    placeholder="Please select"
+                                    showArrow
+                                    class="w-full"
+                                />
+                            </div>
+                            <div class="col-span-1">
+                                <a-input
+                                    :min="form.start"
+                                    :max="form.end"
+                                    v-model:value="form_multi_ledger.date"
+                                    style="width: 100%"
+                                    type="date"
+                                    label="date"
+                                    placeholder="Enter Begin date:"
+                                    class="pr-2 ml-2 pb-2 rounded-md"
+                                    required
+                                />
+                            </div>
+                            <div class="col-span-1">
+                                <Button
+                                    type="primary"
+                                    :disabled="form.processing"
+                                    htmlType="submit"
+                                    >Ledger Excel</Button
+                                >
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-span-1">
+                    <form
+                        @submit.prevent="submit_multi_ledger_range_pdf"
+                        ref="form_multi_ledger_range_pdf"
+                        v-bind:action="
+                            'multi-ledger-pdf/' +
+                            JSON.stringify(this.form_multi_ledger)
+                        "
+                    >
+                        <Select
+                            v-model:value="form_multi_ledger.account"
+                            :options="accounts"
+                            :field-names="{ label: 'name', value: 'id' }"
+                            filterOption="true"
+                            optionFilterProp="name"
+                            mode="multiple"
+                            placeholder="Please select"
+                            showArrow
+                            class="w-full"
+                            hidden
+                        />
+
+                        <a-input
+                            :min="form.start"
+                            :max="form.end"
+                            v-model:value="form_multi_ledger.date"
+                            style="width: 100%"
+                            type="date"
+                            label="date"
+                            placeholder="Enter Begin date:"
+                            class="pr-2 ml-2 pb-2 rounded-md"
+                            hidden
+                        />
+
+                        <Button
+                            type="primary"
+                            :disabled="form.processing"
+                            htmlType="submit"
+                            >Ledger PDF</Button
+                        >
+                        <!-- </div> -->
+                    </form>
+                </div>
+            </div>
         </div>
     </app-layout>
 </template>
@@ -198,7 +275,9 @@ export default {
         return {
             co_id: this.company,
             options: this.companies,
+            accounts: this.accounts,
             selected: this.company.name,
+
             yr_id: this.$page.props.yr_id,
             years: this.years,
             selected_year: this.year.name,
@@ -218,11 +297,10 @@ export default {
             //     date_end: null,
             //   }),
 
-            //   form: this.$refs.form({
-            //     account_id: this.account_first.id,
-            //     date_start: "null",
-            //     date_end: null,
-            //   }),
+            form_multi_ledger: {
+                account: [],
+                date: this.date ? this.date : this.max_end,
+            },
 
             //   form: {
             //     account_id: this.account_first.id,
@@ -252,6 +330,16 @@ export default {
         submit_pl_range: function () {
             this.$refs.form_pl_range.submit();
         },
+
+        submit_multi_ledger_range: function () {
+            // this.$inertia.get(route("multi_ledger", this.form_multi_ledger));
+            this.$refs.form_multi_ledger_range.submit();
+        },
+
+        submit_multi_ledger_range_pdf: function () {
+            this.$refs.form_multi_ledger_range_pdf.submit();
+        },
+
         meth() {
             this.form.get(route("range"));
         },
