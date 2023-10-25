@@ -164,12 +164,13 @@
                                     required
                                 />
                             </div>
-                            <div class="col-span-1">
+                            <div class="col-span-1 flex justify-center">
                                 <Button
                                     type="primary"
                                     :disabled="form.processing"
                                     htmlType="submit"
-                                    >Ledger Excel</Button
+                                >
+                                    Multi Ledger Excel</Button
                                 >
                             </div>
                         </div>
@@ -213,7 +214,7 @@
                             type="primary"
                             :disabled="form.processing"
                             htmlType="submit"
-                            >Ledger PDF</Button
+                            >Multi Ledger PDF</Button
                         >
                         <!-- </div> -->
                     </form>
@@ -387,8 +388,8 @@ export default {
             this.$inertia.get(route("companies.coch", value));
         },
 
-        yrch() {
-            this.$inertia.get(route("years.yrch", this.yr_id));
+        yrch(value) {
+            this.$inertia.get(route("years.yrch", value));
         },
     },
 };

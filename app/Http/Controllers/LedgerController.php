@@ -174,8 +174,7 @@ class LedgerController extends Controller
             // ---------- mapping data for ant-design
             // dd(number_format($data['debits'] , 2));
             return Inertia::render('Ledgers/Index', [
-                'company' => Company::where('id', session("company_id"))->first(),
-                'companies' => Auth::user()->companies,
+
                 'account_first' => $account_first,
                 'accounts' => $accounts,
                 'date_start' => $start,
@@ -188,6 +187,11 @@ class LedgerController extends Controller
                 'prebal' => $prebal,
                 'min_start' => $date_range->begin,
                 'max_end' => $date_range->end,
+                'company' => companies_first(),
+                'companies' => companies_get(),
+                'years' => years_get(),
+                'year' => years_first(),
+
             ]);
         } else {
             return Redirect::route('accounts')->with('warning', 'Transaction NOT FOUND, Please create an transaction first.');

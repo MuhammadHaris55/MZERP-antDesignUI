@@ -77,24 +77,10 @@ class DashboardController extends Controller
             'monthly_revenue_value' =>$monthly_revenue_value,
             'monthly_revenue_month' =>$monthly_revenue_month,
             'all_companies' => Company::all(),
-            // 'companies' => auth()->user()->companies,
-            'company' => Company::where('id', session('company_id'))->first(),
-            'companies' => auth()->user()->companies,
-            'years' => Year::where('company_id', session('company_id'))->get(),
-            'year' => Year::all()
-                ->where('company_id', session('company_id'))
-                ->where('id', session('year_id'))
-                ->map(
-                    function ($year) {
-                        $begin = new Carbon($year->begin);
-                        $end = new Carbon($year->end);
-
-                        return [
-                            'id' => $year->id,
-                            'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
-                        ];
-                    },
-                )->first(),
+            'company' => companies_first(),
+            'companies' => companies_get(),
+            'years' => years_get(),
+            'year' => years_first(),
             // 'roles' => $roles,
             'can' => [
                 'edit' => auth()->user()->can('edit'),

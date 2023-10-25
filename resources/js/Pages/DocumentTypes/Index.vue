@@ -4,9 +4,30 @@
             <div class="grid grid-cols-2">
                 <h2 class="font-semibold text-lg text-white p-4">Voucher</h2>
                 <div class="flex justify-end items-center">
-                    <Select v-model:value="selected" :options="options" :field-names="{ label: 'name', value: 'id' }"
-                        filterOption="true" optionFilterProp="name" mode="single" placeholder="Please select" showArrow
-                        @change="coch" class="w-1/2" />
+                    <Select
+                        v-model:value="selected_year"
+                        :options="years"
+                        :field-names="{ label: 'end', value: 'id' }"
+                        filterOption="true"
+                        optionFilterProp="name"
+                        mode="single"
+                        placeholder="Please select"
+                        showArrow
+                        @change="yrch"
+                        class="w-1/2"
+                    />
+                    <Select
+                        v-model:value="selected"
+                        :options="options"
+                        :field-names="{ label: 'name', value: 'id' }"
+                        filterOption="true"
+                        optionFilterProp="name"
+                        mode="single"
+                        placeholder="Please select"
+                        showArrow
+                        @change="coch"
+                        class="w-1/2"
+                    />
                 </div>
             </div>
         </template>
@@ -14,16 +35,39 @@
         <!-- <FlashMessage /> -->
 
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-2">
-            <Button v-if="can['create']" @click="create" size="small" class="ml-2">Create</Button>
+            <Button
+                v-if="can['create']"
+                @click="create"
+                size="small"
+                class="ml-2"
+                >Create</Button
+            >
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
-                <Table :columns="columns" :data-source="mapped_data" :loading="loading" class="mt-2" size="small">
+                <Table
+                    :columns="columns"
+                    :data-source="mapped_data"
+                    :loading="loading"
+                    class="mt-2"
+                    size="small"
+                >
                     <template #bodyCell="{ column, record }">
                         <template v-if="column.key === 'actions'">
                             <!-- v-if="can['edit'] || can['delete']" -->
-                            <Button size="small" v-if="can['edit']" type="primary" @click="edit(record.id)"
-                                class="mr-2">Edit</Button>
-                            <Button size="small" v-if="record.delete && can['delete']" danger
-                                @click="destroy(record.id)">Delete</Button>
+                            <Button
+                                size="small"
+                                v-if="can['edit']"
+                                type="primary"
+                                @click="edit(record.id)"
+                                class="mr-2"
+                                >Edit</Button
+                            >
+                            <Button
+                                size="small"
+                                v-if="record.delete && can['delete']"
+                                danger
+                                @click="destroy(record.id)"
+                                >Delete</Button
+                            >
                         </template>
                     </template>
                 </Table>
@@ -52,7 +96,15 @@ export default {
         Multiselect,
     },
 
-    props: ["balances", "mapped_data", "companies", "company", "can"],
+    props: [
+        "balances",
+        "mapped_data",
+        "companies",
+        "company",
+        "years",
+        "year",
+        "can",
+    ],
 
     data() {
         return {
@@ -61,6 +113,8 @@ export default {
             options: this.companies,
             search: "",
             selected: this.company.name,
+            years: this.years,
+            selected_year: this.year.name,
 
             columns: [
                 {
@@ -106,6 +160,9 @@ export default {
         },
         coch(value) {
             this.$inertia.get(route("companies.coch", value));
+        },
+        yrch(value) {
+            this.$inertia.get(route("years.yrch", value));
         },
     },
 };

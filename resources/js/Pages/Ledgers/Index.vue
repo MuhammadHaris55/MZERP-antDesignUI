@@ -5,6 +5,18 @@
                 <h2 class="font-semibold text-lg text-white p-4">Ledgers</h2>
                 <div class="flex justify-end items-center">
                     <Select
+                        v-model:value="selected_year"
+                        :options="years"
+                        :field-names="{ label: 'end', value: 'id' }"
+                        filterOption="true"
+                        optionFilterProp="name"
+                        mode="single"
+                        placeholder="Please select"
+                        showArrow
+                        @change="yrch"
+                        class="w-1/2"
+                    />
+                    <Select
                         v-model:value="selected"
                         show-search
                         filterOption="true"
@@ -131,6 +143,8 @@ export default {
         data: Object,
         companies: Object,
         company: Object,
+        years: Object,
+        year: Object,
         accounts: Array,
         account_first: Object,
         entries: Object,
@@ -152,6 +166,8 @@ export default {
             options: this.companies,
             search: "",
             selected: this.company.name,
+            years: this.years,
+            selected_year: this.year.name,
             option: this.accounts,
 
             columns: [
@@ -236,6 +252,9 @@ export default {
         },
         coch(value) {
             this.$inertia.get(route("companies.coch", value));
+        },
+        yrch(value) {
+            this.$inertia.get(route("years.yrch", value));
         },
     },
 };

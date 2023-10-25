@@ -57,33 +57,10 @@ class ReportController extends Controller
             'max_end' => $date_range->end,
             // 'account_first' => $account_first,
             'accounts' => $accounts,
-            'company' => Company::where('id', session('company_id'))->first(),
-            'companies' => Auth::user()->companies,
-            // 'years' => Year::all()
-            //     ->where('company_id', session('company_id'))
-            //     ->map(function ($year) {
-            //         $begin = new Carbon($year->begin);
-            //         $end = new Carbon($year->end);
-
-            //         return [
-            //             'id' => $year->id,
-            //             'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
-            //         ];
-            //     }),
-                'years' => Year::where('company_id', session('company_id'))->get(),
-                'year' => Year::all()
-                    ->where('company_id', session('company_id'))
-                    ->where('id', session('year_id'))
-                    ->map(function ($year) {
-                        $begin = new Carbon($year->begin);
-                        $end = new Carbon($year->end);
-
-                        return [
-                            'id' => $year->id,
-                            'name' => $begin->format('M d, Y') . ' - ' . $end->format('M d, Y'),
-                        ];
-                    },
-                )->first(),
+            'company' => companies_first(),
+            'companies' => companies_get(),
+            'years' => years_get(),
+            'year' => years_first(),
 
         ]);
     }

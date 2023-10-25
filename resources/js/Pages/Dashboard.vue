@@ -250,11 +250,6 @@ export default {
         yrch(value) {
             this.$inertia.get(route("years.yrch", value));
         },
-
-        // route() {
-        //   // this.$inertia.post(route("companies.store"), this.form);
-        //   this.$inertia.get(route("pd"));
-        // },
     },
 };
 </script>

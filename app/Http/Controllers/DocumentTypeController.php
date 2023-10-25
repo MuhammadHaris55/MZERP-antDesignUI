@@ -6,8 +6,11 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Request;
 use App\Models\DocumentType;
 use App\Models\Company;
+use App\Models\Year;
 use App\Models\Document;
 use Inertia\Inertia;
+
+use Carbon\Carbon;
 use Illuminate\Http\Request as Req;
 
 class DocumentTypeController extends Controller
@@ -62,8 +65,10 @@ class DocumentTypeController extends Controller
                     ];
                 }),
             'mapped_data' => $mapped_data,
-            'company' => Company::where('id', session('company_id'))->first(),
-            'companies' => auth()->user()->companies,
+            'company' => companies_first(),
+            'companies' => companies_get(),
+            'years' => years_get(),
+            'year' => years_first(),
             'can' => [
                 'edit' => auth()->user()->can('edit'),
                 'create' => auth()->user()->can('create'),
