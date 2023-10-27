@@ -16,7 +16,7 @@
                 >
                     <!-- DOCUMENT TYPE ID -->
                     <a-form-item
-                        label="Select Voucher"
+                        label="Voucher :"
                         :label-col="{ span: 4 }"
                         :wrapper-col="{ span: 14 }"
                     >
@@ -54,7 +54,7 @@
                     </a-form-item>
 
                     <a-form-item
-                        label="Select Date :"
+                        label="Date :"
                         :label-col="{ span: 4 }"
                         :wrapper-col="{ span: 14 }"
                     >
@@ -107,7 +107,6 @@
                                 >
                                     <td>
                                         <a-select
-                                            style="width: 100%"
                                             show-search
                                             v-model:value="entry.account_id"
                                             :options="option"
@@ -120,6 +119,7 @@
                                             mode="single"
                                             placeholder="Select Account"
                                             showArrow
+                                            class="w-80"
                                         />
 
                                         <div
@@ -223,7 +223,7 @@
                                             @click.prevent="addRow"
                                             ghost
                                         >
-                                            Add Row
+                                            Add Entry
                                         </a-button>
                                         <div v-else></div>
                                     </td>

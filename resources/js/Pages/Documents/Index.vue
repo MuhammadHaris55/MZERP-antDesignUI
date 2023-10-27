@@ -42,14 +42,14 @@
                 size="small"
                 @click="create"
                 class="ml-2"
-                >Create</Button
+                >Create Transactions</Button
             >
 
             <InputSearch
                 size="small"
                 class="ml-2"
                 v-model:value="search"
-                placeholder="input search text"
+                placeholder="Search here"
                 style="width: 200px"
                 @search="onSearch"
             />
@@ -136,7 +136,7 @@
                 ghost
                 :href="'documents/Accountpdf'"
             >
-                Download Accounts
+                Download Chart of Accounts
             </a>
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
                 <Table
@@ -183,7 +183,7 @@
                                 :href="'pd/' + record.id"
                                 target="_blank"
                                 class="ant-btn ant-btn-sm"
-                                >Voucher in PDF</a
+                                >Generate Voucher</a
                             >
                         </template>
                     </template>
@@ -204,6 +204,7 @@ import {
     InputSearch,
     Anchor,
     Checkbox,
+    Modal,
 } from "ant-design-vue";
 import JetButton from "@/Jetstream/Button";
 import Paginator from "@/Layouts/Paginator";
@@ -221,7 +222,7 @@ export default {
         Select,
         InputSearch,
         Checkbox,
-
+        Modal,
         JetButton,
         Paginator,
         throttle,
@@ -297,20 +298,23 @@ export default {
                     //     }
                     //     return 0;
                     //     },
-                    width: "20%",
+                    width: "10%",
                 },
                 {
                     title: "Date",
                     dataIndex: "date",
+                    width: "15%",
                 },
                 {
                     title: "Description",
                     dataIndex: "description",
+                    width: "45%",
                 },
                 {
                     title: "Actions",
                     dataIndex: "actions",
                     key: "actions",
+                    width: "20%",
                 },
             ],
 
@@ -327,8 +331,6 @@ export default {
             this.$inertia.get(
                 route("documents"),
                 {
-                    // select: select.value,
-                    // search: search.value
                     search: this.search,
                 },
                 { replace: true, preserveState: true }
@@ -367,9 +369,6 @@ export default {
         coch(value) {
             this.$inertia.get(route("companies.coch", value));
         },
-        // yrch() {
-        //   this.$inertia.get(route("companies.yrch", this.yr_id));
-        // },
         yrch(value) {
             this.$inertia.get(route("years.yrch", value));
         },
@@ -410,7 +409,6 @@ export default {
         },
         updateCheckall: function (id) {
             if (this.form_delete_transaction.selected_arr.includes(id)) {
-                console.log("include" + id);
                 const index =
                     this.form_delete_transaction.selected_arr.indexOf(id);
                 if (index !== -1) {
@@ -431,12 +429,24 @@ export default {
         },
         selete: function () {
             if (this.form_delete_transaction.selected_arr.length >> 0) {
-                this.$inertia.post(
-                    route("delete_transactions", this.form_delete_transaction)
-                );
-                // this.selected_arr = [];
+                Modal.confirm({
+                    title: "Do you really want to delete selected transactions?",
+                    onOk: () => {
+                        this.$inertia.post(
+                            route(
+                                "delete_transactions",
+                                this.form_delete_transaction
+                            )
+                        );
+                        this.isCheckAll = true;
+                        this.checkAll();
+                    },
+                    onCancel: () => {},
+                });
             } else {
-                alert("Please select transaction");
+                Modal.error({
+                    title: "Please select transaction",
+                });
             }
         },
     },

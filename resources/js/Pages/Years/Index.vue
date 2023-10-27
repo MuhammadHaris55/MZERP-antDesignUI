@@ -43,6 +43,7 @@
                         <template v-if="column.key === 'actions'">
                             <!-- v-if="can['edit'] || can['delete']" -->
                             <Button
+                                hidden
                                 size="small"
                                 v-if="can['edit']"
                                 type="primary"
@@ -64,7 +65,7 @@
                                 type="primary"
                                 ghost
                                 @click="close(record.id)"
-                                >Close Fiscal</Button
+                                >Close Year</Button
                             >
                         </template>
                     </template>
@@ -132,11 +133,11 @@ export default {
                     width: "20%",
                 },
                 {
-                    title: "Begin",
+                    title: "Year Start",
                     dataIndex: "begin",
                 },
                 {
-                    title: "End",
+                    title: "Year End",
                     dataIndex: "end",
                 },
                 {

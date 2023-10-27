@@ -1,28 +1,52 @@
 <template>
-  <app-layout>
-    <template #header>
-      <h2 class="font-semibold text-lg text-white p-4">Edit Account Groups</h2>
-    </template>
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
-      <div class="">
-          <a-form :form="form" @submit.prevent="submit" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
-             <a-form-item label="Name :">
-                <a-input v-model:value="form.name" placeholder="Enter your name" />
-                <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.name">
-                    {{ errors.name }}
-                </div>
-            </a-form-item>
-            <a-form-item label="Type :">
-                <a-input v-model:value="form.type" disabled="true" placeholder="Enter your name" />
-                <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.type">
-                    {{ errors.type }}
-                </div>
-            </a-form-item>
-              <a-form-item class="text-right">
-                <a-button type="primary" @click="submit">Update Account Group</a-button>
-            </a-form-item>
-        </a-form>
-        <!-- <form @submit.prevent="submit">
+    <app-layout>
+        <template #header>
+            <h2 class="font-semibold text-lg text-white p-4">
+                Edit Account Groups
+            </h2>
+        </template>
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
+            <div class="">
+                <a-form
+                    :form="form"
+                    @submit.prevent="submit"
+                    :label-col="{ span: 4 }"
+                    :wrapper-col="{ span: 14 }"
+                >
+                    <a-form-item label="Name :">
+                        <a-input
+                            v-model:value="form.name"
+                            placeholder="Enter your name"
+                        />
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.name"
+                        >
+                            {{ errors.name }}
+                        </div>
+                    </a-form-item>
+                    <a-form-item label="Account Type :">
+                        <a-input
+                            v-model:value="form.type"
+                            disabled="true"
+                            placeholder="Enter your name"
+                        />
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.type"
+                        >
+                            {{ errors.type }}
+                        </div>
+                    </a-form-item>
+                    <a-form-item class="text-right">
+                        <a-button type="primary" @click="submit"
+                            >Update Group</a-button
+                        >
+                    </a-form-item>
+                </a-form>
+                <!-- <form @submit.prevent="submit">
 
           <div class="p-2 mr-2 mb-2 mt-4 ml-6 flex flex-wrap">
             <label class="my-2 mr-8 text-right w-36 font-bold">Name :</label
@@ -122,9 +146,9 @@
 
           </div>
         </form> -->
-      </div>
-    </div>
-  </app-layout>
+            </div>
+        </div>
+    </app-layout>
 </template>
 
 <script>
@@ -139,9 +163,9 @@ import {
 } from "ant-design-vue";
 
 export default {
-  components: {
-    AppLayout,
-     "a-tree-select": TreeSelect,
+    components: {
+        AppLayout,
+        "a-tree-select": TreeSelect,
         "a-form": Form,
         "a-form-item": Form.Item,
         "a-input": Input,
@@ -149,30 +173,30 @@ export default {
         "a-button": Button,
         "a-select": Select,
         "a-date-picker": DatePicker,
-  },
-
-  props: {
-    errors: Object,
-    accountgroup: Object,
-  },
-
-  data() {
-    return {
-      form: this.$inertia.form({
-        name: this.accountgroup[0].name,
-        type: this.accountgroup[0].type_id,
-        parent: this.accountgroup[0].parent_id,
-      }),
-    };
-  },
-
-  methods: {
-    submit() {
-      this.$inertia.put(
-        route("accountgroups.update", this.accountgroup[0].id),
-        this.form
-      );
     },
-  },
+
+    props: {
+        errors: Object,
+        accountgroup: Object,
+    },
+
+    data() {
+        return {
+            form: this.$inertia.form({
+                name: this.accountgroup[0].name,
+                type: this.accountgroup[0].type_id,
+                parent: this.accountgroup[0].parent_id,
+            }),
+        };
+    },
+
+    methods: {
+        submit() {
+            this.$inertia.put(
+                route("accountgroups.update", this.accountgroup[0].id),
+                this.form
+            );
+        },
+    },
 };
 </script>

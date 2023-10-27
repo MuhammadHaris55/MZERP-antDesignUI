@@ -76,7 +76,7 @@
                 />
                 <div v-if="errors.date_end">{{ errors.date_end }}</div>
                 <Button html-type="submit" type="primary" ghost class="ml-2"
-                    >Ledger Report</Button
+                    >Generate Ledger</Button
                 >
 
                 <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">

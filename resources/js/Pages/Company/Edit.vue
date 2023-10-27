@@ -5,68 +5,125 @@
         </template>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
             <div class="">
-                <a-form :form="form" @submit.prevent="submit" :label-col="{ span: 4 }" :wrapper-col="{ span: 14 }">
+                <a-form
+                    :form="form"
+                    @submit.prevent="submit"
+                    :label-col="{ span: 4 }"
+                    :wrapper-col="{ span: 14 }"
+                >
                     <a-form-item label="Name">
-                        <a-input v-model:value="form.name" placeholder="Enter your name" />
+                        <a-input
+                            v-model:value="form.name"
+                            placeholder="Enter your name"
+                        />
 
-                        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.name">
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.name"
+                        >
                             {{ errors.name }}
                         </div>
                     </a-form-item>
                     <a-form-item label="Address ">
-                        <a-textarea v-model:value="form.address" placeholder="Enter your address" />
+                        <a-textarea
+                            v-model:value="form.address"
+                            placeholder="Enter your address"
+                        />
 
-                        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.address">
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.address"
+                        >
                             {{ errors.address }}
                         </div>
                     </a-form-item>
 
                     <a-form-item label="Email">
-                        <a-input v-model:value="form.email" placeholder="Enter your email" />
+                        <a-input
+                            v-model:value="form.email"
+                            placeholder="Enter your email"
+                        />
 
-                        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.email">
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.email"
+                        >
                             {{ errors.email }}
                         </div>
                     </a-form-item>
 
                     <a-form-item label="Web Address">
-                        <a-input v-model:value="form.web" placeholder="Enter your web" />
+                        <a-input
+                            v-model:value="form.web"
+                            placeholder="Enter your web"
+                        />
 
-                        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.web">
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.web"
+                        >
                             {{ errors.web }}
                         </div>
                     </a-form-item>
 
                     <a-form-item label="Phone No">
-                        <a-input v-model:value="form.phone" placeholder="Enter your phone" />
+                        <a-input
+                            v-model:value="form.phone"
+                            placeholder="Enter your phone"
+                        />
 
-                        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.phone">
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.phone"
+                        >
                             {{ errors.phone }}
                         </div>
                     </a-form-item>
 
-                    <a-form-item label="Fiscal">
-                        <a-select v-model:value="form.fiscal" :options="fiscals"
-                            :field-names="{ label: 'name', value: 'name' }" optionFilterProp="name" mode="single"
-                            placeholder="Please select" showArrow class="w-full" />
+                    <a-form-item label="Month End">
+                        <a-select
+                            v-model:value="form.fiscal"
+                            :options="fiscals"
+                            :field-names="{ label: 'name', value: 'name' }"
+                            optionFilterProp="name"
+                            mode="single"
+                            placeholder="Please select"
+                            showArrow
+                            class="w-full"
+                        />
 
-                        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.fiscal">
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.fiscal"
+                        >
                             {{ errors.fiscal }}
                         </div>
                     </a-form-item>
-                    <a-form-item label="Incorp">
+                    <a-form-item label="Incorporation Date">
                         <a-input v-model:value="form.incorp" type="date" />
                         <!-- :min="lower"
                            :max="upper" -->
                         <!-- :locale="locale" -->
                         <!-- clearable -->
-                        <div class="text-red-700 px-4 py-2" role="alert" v-if="errors.incorp">
+                        <div
+                            class="text-red-700 px-4 py-2"
+                            role="alert"
+                            v-if="errors.incorp"
+                        >
                             {{ errors.incorp }}
                         </div>
                     </a-form-item>
 
                     <a-form-item class="text-right">
-                        <a-button type="primary" @click="submit">Update Company</a-button>
+                        <a-button type="primary" @click="submit"
+                            >Update Company</a-button
+                        >
                     </a-form-item>
                 </a-form>
             </div>
@@ -79,7 +136,7 @@
 
 // import moment, * as moments from "moment";
 // import moment from "moment";
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs, { Dayjs } from "dayjs";
 import AppLayout from "@/Layouts/AppLayout";
 import {
     Form,
@@ -130,20 +187,18 @@ export default {
                 web: this.company.web,
                 phone: this.company.phone,
                 fiscal: this.company.fiscal,
-                incorp: this.company.incorp
-                    ? this.company.incorp
-                    : null,
+                incorp: this.company.incorp ? this.company.incorp : null,
             }),
         };
     },
 
-
-
     methods: {
         submit() {
-            this.$inertia.put(route("companies.update", this.company.id), this.form);
+            this.$inertia.put(
+                route("companies.update", this.company.id),
+                this.form
+            );
         },
-
     },
 };
 </script>

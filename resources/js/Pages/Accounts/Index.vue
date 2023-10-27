@@ -33,7 +33,7 @@
                 class="ml-2"
                 size="small"
                 v-model:value="search"
-                placeholder="input search text"
+                placeholder="Search here"
                 style="width: 200px"
                 @search="onSearch"
             />

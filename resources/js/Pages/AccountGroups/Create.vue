@@ -48,6 +48,7 @@
                             size="small"
                             v-model="form.parent_id"
                             showSearch
+                            placeholder="Select Account Group"
                             max-height="150"
                             :multiple="false"
                             :options="data"
@@ -61,7 +62,7 @@
                             type="primary"
                             :disabled="form.processing"
                             htmlType="submit"
-                            >Submit</a-button
+                            >Create Group</a-button
                         >
                     </a-form-item>
 
@@ -173,7 +174,6 @@ export default {
             this.form.parent_id = node.id;
         },
         account_type_ch() {
-            console.log(this.form.type_id + "------" + this.form.name);
             this.$inertia.post(route("accountgroups.create.post"), this.form);
         },
     },

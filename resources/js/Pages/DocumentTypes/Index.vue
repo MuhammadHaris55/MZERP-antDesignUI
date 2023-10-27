@@ -40,7 +40,7 @@
                 @click="create"
                 size="small"
                 class="ml-2"
-                >Create</Button
+                >Create Voucher</Button
             >
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
                 <Table
