@@ -11,7 +11,7 @@
                         filterOption="true"
                         optionFilterProp="name"
                         mode="single"
-                        placeholder="Please select"
+                        placeholder="Please select Multi Accounts"
                         showArrow
                         @change="yrch"
                         class="w-1/2"
@@ -32,8 +32,13 @@
             </div>
         </template>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
+            <div>
+                <h2 class="text-2xl font-semibold">Trial Balance</h2>
+            </div>
+
             <a-row>
                 <a-col :span="12">
+                    <label>End Date : </label>
                     <form
                         target="_blank"
                         @submit.prevent="submit_trial_range"
@@ -62,24 +67,30 @@
                         <!-- </div> -->
                     </form>
                 </a-col>
+            </a-row>
+            <br />
+            <div>
+                <h2 class="text-2xl font-semibold">Reports</h2>
+            </div>
+            <a-row>
                 <a-col :span="12">
+                    <label>End Date : </label>
                     <form
                         target="_blank"
                         @submit.prevent="submit_bs_range"
                         v-bind:action="'bs'"
                         ref="form_bs_range"
-                        class="inline-block"
                     >
                         <a-input
                             :min="form.start"
                             :max="form.end"
                             v-model:value="form.date"
+                            style="width: 70%"
                             type="date"
                             label="date"
                             placeholder="Enter Begin date:"
-                            class="ml-2"
+                            class="pr-2 ml-2 pb-2 rounded-md"
                             name="date"
-                            hidden
                             required
                         />
 
@@ -87,30 +98,30 @@
                             type="primary"
                             :disabled="form.processing"
                             htmlType="submit"
-                            >Balance Sheete</Button
+                            >Balance Sheet</Button
                         >
-
-                        <!-- <Button type="submit">Balance Sheet</Button> -->
-                        <!-- </div> -->
                     </form>
-
+                </a-col>
+            </a-row>
+            <a-row class="mt-2">
+                <a-col :span="12">
+                    <label>End Date : </label>
                     <form
                         target="_blank"
                         @submit.prevent="submit_pl_range"
                         v-bind:action="'pl'"
                         ref="form_pl_range"
-                        class="inline-block ml-8"
                     >
                         <a-input
                             :min="form.start"
                             :max="form.end"
                             v-model:value="form.date"
+                            style="width: 70%"
                             type="date"
                             label="date"
                             placeholder="Enter Begin date:"
                             class="pr-2 ml-2 pb-2 rounded-md"
                             name="date"
-                            hidden
                             required
                         />
 
@@ -124,18 +135,69 @@
                 </a-col>
             </a-row>
             <br />
-            <div class="grid grid-cols-4 gap-1">
-                <div class="col-span-3">
-                    <form
-                        @submit.prevent="submit_multi_ledger_range"
-                        ref="form_multi_ledger_range"
-                        v-bind:action="
-                            'multi-ledger/' +
-                            JSON.stringify(this.form_multi_ledger)
-                        "
-                    >
-                        <div class="grid grid-cols-3 gap-1">
-                            <div class="col-span-1">
+            <div>
+                <h2 class="text-2xl font-semibold">Date-wise Multi-Ledger</h2>
+            </div>
+
+            <!--   <div class="grid grid-cols-4 gap-1"> -->
+            <div class="col-span-4">
+                <form
+                    @submit.prevent="submit_multi_ledger_range"
+                    ref="form_multi_ledger_range"
+                    v-bind:action="
+                        'multi-ledger/' + JSON.stringify(this.form_multi_ledger)
+                    "
+                >
+                    <div class="grid grid-cols-4 gap-1">
+                        <div class="col-span-1">
+                            <label>Accounts </label>
+                            <Select
+                                v-model:value="form_multi_ledger.account"
+                                :options="accounts"
+                                :field-names="{
+                                    label: 'name',
+                                    value: 'id',
+                                }"
+                                filterOption="true"
+                                optionFilterProp="name"
+                                mode="multiple"
+                                placeholder="Please select Multi Accounts"
+                                showArrow
+                                class="w-full"
+                            />
+                        </div>
+                        <div class="col-span-1">
+                            <label> End Date</label>
+                            <a-input
+                                :min="form.start"
+                                :max="form.end"
+                                v-model:value="form_multi_ledger.date"
+                                style="width: 100%"
+                                type="date"
+                                label="date"
+                                placeholder="Enter Begin date:"
+                                class="pr-2 ml-2 pb-2 rounded-md"
+                                required
+                            />
+                        </div>
+                        <div class="col-span-2">
+                            <Button
+                                type="primary"
+                                :disabled="form.processing"
+                                htmlType="submit"
+                                class="mt-5"
+                            >
+                                Generate Excel</Button
+                            >
+                            <form
+                                @submit.prevent="submit_multi_ledger_range_pdf"
+                                ref="form_multi_ledger_range_pdf"
+                                v-bind:action="
+                                    'multi-ledger-pdf/' +
+                                    JSON.stringify(this.form_multi_ledger)
+                                "
+                                class="inline-block ml-2"
+                            >
                                 <Select
                                     v-model:value="form_multi_ledger.account"
                                     :options="accounts"
@@ -149,9 +211,9 @@
                                     placeholder="Please select"
                                     showArrow
                                     class="w-full"
+                                    hidden
                                 />
-                            </div>
-                            <div class="col-span-1">
+
                                 <a-input
                                     :min="form.start"
                                     :max="form.end"
@@ -161,65 +223,23 @@
                                     label="date"
                                     placeholder="Enter Begin date:"
                                     class="pr-2 ml-2 pb-2 rounded-md"
-                                    required
+                                    hidden
                                 />
-                            </div>
-                            <div class="col-span-1 flex justify-center">
+
                                 <Button
                                     type="primary"
                                     :disabled="form.processing"
                                     htmlType="submit"
+                                    class="mt-5"
+                                    >Generate PDF</Button
                                 >
-                                    Multi Ledger Excel</Button
-                                >
-                            </div>
+                                <!-- </div> -->
+                            </form>
                         </div>
-                    </form>
-                </div>
-                <div class="col-span-1">
-                    <form
-                        @submit.prevent="submit_multi_ledger_range_pdf"
-                        ref="form_multi_ledger_range_pdf"
-                        v-bind:action="
-                            'multi-ledger-pdf/' +
-                            JSON.stringify(this.form_multi_ledger)
-                        "
-                    >
-                        <Select
-                            v-model:value="form_multi_ledger.account"
-                            :options="accounts"
-                            :field-names="{ label: 'name', value: 'id' }"
-                            filterOption="true"
-                            optionFilterProp="name"
-                            mode="multiple"
-                            placeholder="Please select"
-                            showArrow
-                            class="w-full"
-                            hidden
-                        />
-
-                        <a-input
-                            :min="form.start"
-                            :max="form.end"
-                            v-model:value="form_multi_ledger.date"
-                            style="width: 100%"
-                            type="date"
-                            label="date"
-                            placeholder="Enter Begin date:"
-                            class="pr-2 ml-2 pb-2 rounded-md"
-                            hidden
-                        />
-
-                        <Button
-                            type="primary"
-                            :disabled="form.processing"
-                            htmlType="submit"
-                            >Multi Ledger PDF</Button
-                        >
-                        <!-- </div> -->
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
+            <!--  </div> -->
         </div>
     </app-layout>
 </template>
@@ -348,32 +368,16 @@ export default {
         submit: function () {
             this.$refs.form.submit();
         },
-        // submit() {
-        //   //   entries = this.entries;
-        //   //   if (this.difference === 0) {
-        //   this.form.post(route("range"));
-        //   //   this.$inertia.get(route("range"), this.form);
-        //   //   } else {
-        //   //     alert("Entry is not equal");
-        //   //   }
-        // },
 
         create() {
             this.$inertia.get(route("years.create"));
         },
 
-        // route() {
-        //   this.$inertia.post(route("range"), this.form);
-        //   //   this.$inertia.get(route("range"));
-        // },
-
         route() {
-            // this.$inertia.post(route("companies.store"), this.form);
             this.$inertia.get(route("pd"));
         },
 
         route() {
-            // this.$inertia.post(route("companies.store"), this.form);
             this.$inertia.get(route("trialbalance"));
         },
 
