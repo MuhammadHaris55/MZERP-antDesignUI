@@ -38,7 +38,7 @@
 
             <a-row>
                 <a-col :span="12">
-                    <label>End Date : </label>
+                    <label>As at: </label>
                     <form
                         target="_blank"
                         @submit.prevent="submit_trial_range"
@@ -70,11 +70,11 @@
             </a-row>
             <br />
             <div>
-                <h2 class="text-2xl font-semibold">Reports</h2>
+                <h2 class="text-2xl font-semibold">Financial Statements</h2>
             </div>
             <a-row>
                 <a-col :span="12">
-                    <label>End Date : </label>
+                    <label>As at: </label>
                     <form
                         target="_blank"
                         @submit.prevent="submit_bs_range"
@@ -102,16 +102,15 @@
                         >
                     </form>
                 </a-col>
-            </a-row>
-            <a-row class="mt-2">
                 <a-col :span="12">
-                    <label>End Date : </label>
                     <form
                         target="_blank"
                         @submit.prevent="submit_pl_range"
                         v-bind:action="'pl'"
                         ref="form_pl_range"
+                        class="inline-block"
                     >
+                        <br />
                         <a-input
                             :min="form.start"
                             :max="form.end"
@@ -122,6 +121,7 @@
                             placeholder="Enter Begin date:"
                             class="pr-2 ml-2 pb-2 rounded-md"
                             name="date"
+                            hidden
                             required
                         />
 
@@ -136,7 +136,7 @@
             </a-row>
             <br />
             <div>
-                <h2 class="text-2xl font-semibold">Date-wise Multi-Ledger</h2>
+                <h2 class="text-2xl font-semibold">Ledger</h2>
             </div>
 
             <!--   <div class="grid grid-cols-4 gap-1"> -->
@@ -150,7 +150,7 @@
                 >
                     <div class="grid grid-cols-4 gap-1">
                         <div class="col-span-1">
-                            <label>Accounts </label>
+                            <label>Head of Account(s):</label>
                             <Select
                                 v-model:value="form_multi_ledger.account"
                                 :options="accounts"
@@ -167,7 +167,7 @@
                             />
                         </div>
                         <div class="col-span-1">
-                            <label> End Date</label>
+                            <label> As at:</label>
                             <a-input
                                 :min="form.start"
                                 :max="form.end"
@@ -185,9 +185,8 @@
                                 type="primary"
                                 :disabled="form.processing"
                                 htmlType="submit"
-                                class="mt-5"
                             >
-                                Generate Excel</Button
+                                In Excel</Button
                             >
                             <form
                                 @submit.prevent="submit_multi_ledger_range_pdf"
@@ -225,13 +224,12 @@
                                     class="pr-2 ml-2 pb-2 rounded-md"
                                     hidden
                                 />
-
+                                <br />
                                 <Button
                                     type="primary"
                                     :disabled="form.processing"
                                     htmlType="submit"
-                                    class="mt-5"
-                                    >Generate PDF</Button
+                                    >In PDF</Button
                                 >
                                 <!-- </div> -->
                             </form>
