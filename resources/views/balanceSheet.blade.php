@@ -298,7 +298,8 @@
         ->tree()
         ->get()
         ->ToTree();
-    $gbalance4 = [];
+    $balance_total4 = [];
+    $gbalance = [];
     $gi = 0;
     $balance4_inc = 0;
     foreach ($grps4 as $gr) {
@@ -323,7 +324,6 @@
             }
         }
         $gbalance44[$gi] = $balance;
-
         $balance_total4[$balance4_inc++] = $balance;
 
         // dd($gbalance44);
@@ -365,7 +365,7 @@
         ->tree()
         ->get()
         ->ToTree();
-
+    $balance_total5 = [];
     $gbalance5 = [];
     $gi = 0;
     $balance5_inc = 0;
