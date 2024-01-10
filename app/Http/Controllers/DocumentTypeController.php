@@ -80,6 +80,9 @@ class DocumentTypeController extends Controller
 
     public function create()
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         return Inertia::render('DocumentTypes/Create');
     }
 
@@ -114,6 +117,10 @@ class DocumentTypeController extends Controller
 
     public function edit(DocumentType $documenttype)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         return Inertia::render('DocumentTypes/Edit', [
             'documenttype' => [
                 'id' => $documenttype->id,
@@ -150,6 +157,9 @@ class DocumentTypeController extends Controller
 
     public function destroy(DocumentType $documenttype)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         $documenttype->delete();
         return Redirect::back()->with('success', 'Voucher deleted.');
     }

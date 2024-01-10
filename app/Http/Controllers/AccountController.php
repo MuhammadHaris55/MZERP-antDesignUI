@@ -117,6 +117,9 @@ class AccountController extends Controller
 
     public function create()
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         // $groups = \App\Models\AccountGroup::where('company_id', session('company_id'))->map->only('id', 'name')->get();
         $groups = AccountGroup::where('company_id', session('company_id'))->tree()->get()->toTree();
 
@@ -158,6 +161,10 @@ class AccountController extends Controller
 
     public function edit(Account $account)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         // $groups = AccountGroup::all()->where('company_id', session('company_id'))->map->only('id', 'name');
         $groups = AccountGroup::where('company_id', session('company_id'))->tree()->get()->toTree();
         $group_first = AccountGroup::where('id', $account->group_id)->first();
@@ -191,6 +198,9 @@ class AccountController extends Controller
 
     public function destroy(Account $account)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         $account->delete();
         return Redirect::back()->with('success', 'Account deleted.');
     }

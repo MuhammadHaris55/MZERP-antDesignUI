@@ -116,6 +116,9 @@ class DocumentController extends Controller
 
     public function create()
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         $account_first = Account::all()->where('company_id', session('company_id'))->map->only('id', 'name')->first();
         $doc_type_first = DocumentType::all()->where('company_id', session('company_id'))->map->only('id', 'name')->first();
         $accounts = Account::where('company_id', session('company_id'))
@@ -216,6 +219,9 @@ class DocumentController extends Controller
 
     public function edit(Document $document)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         $accounts = Account::where('company_id', session('company_id'))->get()->map(function ($acc) {
             return [
                 "id" => $acc->id,
@@ -377,6 +383,10 @@ class DocumentController extends Controller
 
     public function destroy(Document $document)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         $document->delete();
         return Redirect::back()->with('success', 'Transaction deleted.');
     }
@@ -432,6 +442,10 @@ class DocumentController extends Controller
 
     public function delete_transactions(Req $req)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         $selected_ids = $req->selected_arr;
         if(count($selected_ids) >> 0)
         {

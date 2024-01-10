@@ -86,6 +86,11 @@ class CompanyController extends Controller
 
     public function create()
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
+
         $fiscals = ['June', 'March', 'September', 'December'];
         $fiscal_first = 'June';
 
@@ -218,6 +223,12 @@ class CompanyController extends Controller
 
     public function edit(Company $company)
     {
+
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
+
         return Inertia::render('Company/Edit', [
             'company' => [
                 'id' => $company->id,
@@ -263,6 +274,10 @@ class CompanyController extends Controller
 
     public function destroy(Company $company)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         $company->users()->detach(auth()->user()->id);
         $company->delete();
         return Redirect::back()->with('success', 'Company deleted.');

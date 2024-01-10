@@ -86,6 +86,10 @@ class YearController extends Controller
 
     public function create()
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         $year = Year::where('company_id', session('company_id'))->latest()->first();
         $begin = Carbon::createFromFormat('Y-m-d H:i:s', $year->end  . "0:00:00")->addDay(1);
         $end = Carbon::createFromFormat('Y-m-d H:i:s', $begin)->addYear(1)->addDay(-1);
@@ -132,6 +136,11 @@ class YearController extends Controller
 
     public function edit(Year $year)
     {
+
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         return Inertia::render('Years/Edit', [
             'year' => [
                 'id' => $year->id,
@@ -162,6 +171,9 @@ class YearController extends Controller
 
     public function destroy(Year $year)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         // if (Document::where('year_id', $year->id)->first()) {
         //     return Redirect::back()->with('success', 'Can\'t DELETE this Year.');
         // } else {
@@ -199,6 +211,9 @@ class YearController extends Controller
 
     public function close($id)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
 
         $claccount = null;
         $cls_acc_id = Setting::where('company_id', session('company_id'))->where('key', 'retain_earning')->first();

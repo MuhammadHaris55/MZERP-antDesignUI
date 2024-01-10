@@ -76,6 +76,10 @@ class AccountGroupController extends Controller
 
     public function create(Req $request)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
+
         if ($request->type_id) {
             $first = AccountType::where('id', $request->type_id)->first();
             $name = $request->name;
@@ -96,6 +100,7 @@ class AccountGroupController extends Controller
 
     public function store(Req $request)
     {
+
         // Request::validate([
         //     'type_id' => ['required'],
         //     'name' => ['required', 'unique:account_groups'],
@@ -121,6 +126,9 @@ class AccountGroupController extends Controller
 
     public function edit(AccountGroup $accountgroup)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         $accountgroup = AccountGroup::where('id', $accountgroup->id)->get()
             ->map(
                 function ($accountgroup) {
@@ -157,6 +165,9 @@ class AccountGroupController extends Controller
 
     public function destroy(AccountGroup $accountgroup)
     {
+        if (auth()->user()->roles->first()->name == 'user') {
+            abort(403, 'You don\'t have access this page');
+        }
         $accountgroup->delete();
         return Redirect::back()->with('success', 'Account Group deleted.');
     }
