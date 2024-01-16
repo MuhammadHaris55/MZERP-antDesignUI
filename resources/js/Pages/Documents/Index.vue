@@ -138,6 +138,14 @@
             >
                 Download Chart of Accounts
             </a>
+            <a
+                v-if="can['create']"
+                href="https://youtu.be/V5eVDyvu8Ho"
+                target="_blank"
+                class="ant-btn ant-btn-sm ml-2"
+                style="float: right"
+                >Help</a
+            >
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
                 <Table
                     :columns="columns"

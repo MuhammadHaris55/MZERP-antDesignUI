@@ -32,6 +32,13 @@
             </div>
         </template>
         <div class="container mx-auto">
+            <a
+                href="https://youtu.be/c0PZvl0c1lI"
+                target="_blank"
+                class="ant-btn ant-btn-sm ml-2"
+                style="float: right"
+                >Help</a
+            >
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div
                     v-for="(item, index) in dashboard_variables"

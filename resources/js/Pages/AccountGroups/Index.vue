@@ -40,6 +40,15 @@
                 >Auto Generate Groups</Button
             >
 
+            <a
+                v-if="can['create']"
+                href="https://youtu.be/ZOZOKJc37b0"
+                target="_blank"
+                class="ant-btn ant-btn-sm ml-2"
+                style="float: right"
+                >Help</a
+            >
+
             <InputSearch
                 size="small"
                 class="ml-2"

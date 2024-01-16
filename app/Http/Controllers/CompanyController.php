@@ -283,6 +283,14 @@ class CompanyController extends Controller
         return Redirect::back()->with('success', 'Company deleted.');
     }
 
+    //    <inertia-link
+    //                     v-if="canRegister"
+    //                     :href="route('register')"
+    //                     class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:border-gray-900 focus:shadow-outline-gray transition ease-in-out duration-150 ml-4"
+    //                 >
+    //                     Register
+    //                 </inertia-link>
+
     //TO CHANGE THE COMPANY IN SESSION FROM DROPDOWN
     public function coch($id)
     {

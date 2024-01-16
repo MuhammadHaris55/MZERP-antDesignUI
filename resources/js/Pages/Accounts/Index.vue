@@ -37,7 +37,14 @@
                 style="width: 200px"
                 @search="onSearch"
             />
-
+            <a
+                v-if="can['create']"
+                href="https://youtu.be/niPKqWh-hJo"
+                target="_blank"
+                class="ant-btn ant-btn-sm ml-2"
+                style="float: right"
+                >Help</a
+            >
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
                 <Table
                     :columns="columns"

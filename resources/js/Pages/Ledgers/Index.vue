@@ -74,9 +74,18 @@
                     @change="getledger"
                     name="date_end"
                 />
+
                 <div v-if="errors.date_end">{{ errors.date_end }}</div>
                 <Button html-type="submit" type="primary" ghost class="ml-2"
                     >Generate Ledger</Button
+                >
+
+                <a
+                    href="https://youtu.be/jkxwzkwKA5E"
+                    target="_blank"
+                    class="ant-btn ant-btn-sm ml-2"
+                    style="float: right"
+                    >Help</a
                 >
 
                 <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">

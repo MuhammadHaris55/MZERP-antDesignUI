@@ -35,7 +35,13 @@
             <div>
                 <h2 class="text-2xl font-semibold">Trial Balance</h2>
             </div>
-
+            <a
+                href="https://youtu.be/XSY68ycuwy0"
+                target="_blank"
+                class="ant-btn ant-btn-sm ml-2"
+                style="float: right"
+                >Help</a
+            >
             <a-row>
                 <a-col :span="12">
                     <label>As at: </label>
