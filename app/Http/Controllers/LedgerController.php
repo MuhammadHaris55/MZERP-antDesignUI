@@ -41,7 +41,18 @@ class LedgerController extends Controller
 
             $account_first = ['id' => 0];
             $account_first = Account::where('company_id', session('company_id'))->first();
-            $accounts = Account::where('company_id', session('company_id'))->get();
+            $accounts = Account::where('company_id', session('company_id'))->get()->map(function($row){
+                return [
+                     "id" => $row->id,
+                    "number" => $row->number,
+                    "name" =>  $row->name .' - '. $row->accountGroup->name,
+                    "enabled" => $row->enabled,
+                    "company_id" => $row->company_id,
+                    "group_id" => $row->group_id,
+                    "created_at" => $row->created_at,
+                    "updated_at" => $row->updated_at,
+                ];
+           });
             if ($request->account_id) {
                 $account_first = Account::all()->where('company_id', session('company_id'))->where('id', $request->account_id)->map->only('id', 'name')->first();
             }

@@ -227,18 +227,24 @@ class DashboardController extends Controller
                 $userexist->assignRole($data['role']);
 
                 $company = Company::where('id', $data['company'])->with('users')->first();
+                $year = Year::where('company_id', $company->id)->first();
                 $check = true;
                 foreach($company->users as $comp_user)
                 {
                     if($comp_user->email == $data['email'])
                     {
+
                         $check = false;
                         break;
                     }
                 }
                 if($check)
                 {
+
+
                     $company->users()->attach($userexist->id);
+
+
                 }
             } else {
                 return Redirect::back()->with('warning', 'User email doesn\'t exists');
@@ -246,6 +252,31 @@ class DashboardController extends Controller
         } else {
                 return Redirect::back()->with('warning', 'You can\'t change your own role');
         }
+                    $set_comp = Setting::where('user_id', $userexist->id)->where('key', 'active_company')->first();
+                    $set_year = Setting::where('user_id', $userexist->id)->where('key', 'active_year')->first();
+
+                    if ($set_comp) {
+                        $set_comp->value = $company->id;
+                        $set_comp->save();
+                    } else {
+                        // Create Active Company Setting
+                        Setting::create([
+                            'key' => 'active_company',
+                            'value' => $company->id,
+                            'user_id' => $userexist->id,
+                        ]);
+                    }
+                    if ($set_year) {
+                        $set_year->value = $year->id;
+                        $set_year->save();
+                    } else {
+                        // Create Active Year Setting
+                        Setting::create([
+                            'key' => 'active_year',
+                            'value' => $year->id,
+                            'user_id' => $userexist->id,
+                        ]);
+                    }
 
         return Redirect::back()->with('success', 'Role assigned.');
     }

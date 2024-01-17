@@ -82,7 +82,7 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import FlashMessage from "@/Layouts/FlashMessage";
-import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import { Button, Table, Select, InputSearch, Modal } from "ant-design-vue";
 import "ant-design-vue/dist/antd.css";
 
 import JetButton from "@/Jetstream/Button";
@@ -99,7 +99,7 @@ export default {
         Table,
         Select,
         InputSearch,
-
+        Modal,
         JetButton,
         Paginator,
         throttle,
@@ -185,7 +185,13 @@ export default {
         },
 
         destroy(id) {
-            this.$inertia.delete(route("accounts.destroy", id));
+            Modal.confirm({
+                title: "Do you really want to delete Accounts?",
+                onOk: () => {
+                    this.$inertia.delete(route("accounts.destroy", id));
+                },
+                onCancel: () => {},
+            });
         },
         coch(value) {
             this.$inertia.get(route("companies.coch", value));

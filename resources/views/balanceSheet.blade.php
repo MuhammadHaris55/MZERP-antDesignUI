@@ -231,7 +231,7 @@
         $gi++;
     }
 
-    $id3 = \App\Models\AccountType::where('name', 'Capital')->first()->id;
+    $id3 = \App\Models\AccountType::where('id',3)->first()->id;
     $grps3 = \App\Models\AccountGroup::where('company_id', session('company_id'))
         ->where('type_id', $id3)
         ->tree()
@@ -550,7 +550,7 @@
                 ?>
 
                 <tr>
-                    <td><strong>CAPITAL</strong></td>
+                    <td><strong>Share Capital And Equity</strong></td>
                     <td></td>
                 </tr>
 
@@ -587,7 +587,7 @@
                 @endforeach
                 <tr>
                     <td style="width: 15%;">
-                        Capital - Total
+                        Share Capital - Total
                     </td>
                     <td style="width: 10%; border-top: 1pt solid black; border-bottom: 3pt double black;"
                         align="right">

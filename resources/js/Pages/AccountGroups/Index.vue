@@ -95,7 +95,7 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import FlashMessage from "@/Layouts/FlashMessage";
-import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import { Button, Table, Select, InputSearch, Modal } from "ant-design-vue";
 import "ant-design-vue/dist/antd.css";
 
 import { ref } from "vue";
@@ -109,6 +109,7 @@ export default {
         Table,
         Select,
         InputSearch,
+        Modal,
     },
 
     props: {
@@ -203,7 +204,13 @@ export default {
         },
 
         destroy(id) {
-            this.$inertia.delete(route("accountgroups.destroy", id));
+            Modal.confirm({
+                title: "Do you really want to delete Account Group?",
+                onOk: () => {
+                    this.$inertia.delete(route("accountgroups.destroy", id));
+                },
+                onCancel: () => {},
+            });
         },
 
         generate() {

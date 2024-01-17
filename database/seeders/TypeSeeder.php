@@ -24,7 +24,7 @@ class TypeSeeder extends Seeder
                 'name' => 'Liabilities',
                 ]);
                 AccountType::create([
-                'name' => 'Capital',
+                'name' => 'Share Capital And Equity',
                 ]);
                 AccountType::create([
                 'name' => 'Revenue',

@@ -87,7 +87,7 @@
 <script>
 import AppLayout from "@/Layouts/AppLayout";
 import FlashMessage from "@/Layouts/FlashMessage";
-import { Button, Table, Select, InputSearch } from "ant-design-vue";
+import { Button, Table, Select, InputSearch, Modal } from "ant-design-vue";
 import "ant-design-vue/dist/antd.css";
 
 import Multiselect from "@suadelabs/vue3-multiselect";
@@ -100,7 +100,7 @@ export default {
         Table,
         Select,
         InputSearch,
-
+        Modal,
         Multiselect,
     },
 
@@ -164,7 +164,13 @@ export default {
         },
 
         destroy(id) {
-            this.$inertia.delete(route("documenttypes.destroy", id));
+            Modal.confirm({
+                title: "Do you really want to delete Voucher?",
+                onOk: () => {
+                    this.$inertia.delete(route("documenttypes.destroy", id));
+                },
+                onCancel: () => {},
+            });
         },
         coch(value) {
             this.$inertia.get(route("companies.coch", value));
