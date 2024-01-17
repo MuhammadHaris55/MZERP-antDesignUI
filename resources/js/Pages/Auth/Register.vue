@@ -12,7 +12,7 @@
         >
             Only Exist Account Login, Please Click Here
         </inertia-link>
-        <!-- <form @submit.prevent="submit">
+        <form @submit.prevent="submit">
             <div>
                 <jet-label for="name" value="Name" />
                 <jet-input
@@ -112,7 +112,7 @@
                     Register
                 </jet-button>
             </div>
-        </form> -->
+        </form>
     </jet-authentication-card>
 </template>
 
