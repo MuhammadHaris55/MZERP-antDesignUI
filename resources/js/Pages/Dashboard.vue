@@ -128,6 +128,19 @@
                                 class="mb-2 ml-2 mr-5 text-right w-38 font-bold"
                                 >User
                             </label>
+                            <input
+                                v-model="form.role"
+                                id="deactivate"
+                                name="deactivate"
+                                type="radio"
+                                value="deactivate"
+                                class="pr-2 mt-1 pb-2 rounded-md placeholder-indigo-300"
+                            />
+                            <label
+                                for="deactivate"
+                                class="mb-2 ml-2 mr-5 text-right w-38 font-bold"
+                                >Deactivate
+                            </label>
                             <div v-if="errors.role">{{ errors.role }}</div>
                         </div>
 
@@ -139,7 +152,7 @@
                                 track-by="id"
                                 label="name"
                                 :options="all_companies"
-                            >
+                                >$role
                             </multiselect>
                             <div v-if="errors.company_id">
                                 {{ errors.company_id }}

@@ -52,4 +52,9 @@ class Company extends Model
     {
         return $this->hasMany('App\Models\Year', 'company_id');
     }
+
+     public function year()
+    {
+        return $this->hasOne('App\Models\Year', 'company_id');
+    }
 }

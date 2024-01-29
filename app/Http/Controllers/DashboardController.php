@@ -213,18 +213,24 @@ class DashboardController extends Controller
         $data['role'] = Request::input('role');
         $data['company'] = Request::input('company_id')['id'];
 
+        // exit;
         Request::validate([
             'email' => ['required'],
             'role' => ['required'],
             'company_id' => ['required'],
         ]);
 
+        // dd( $data['role']);
         $userexist = User::where('email',$data['email'])->first('id');
         if(auth()->user()->email != $data['email'])
         {
             if($userexist){
-                $userexist->roles()->detach();
-                $userexist->assignRole($data['role']);
+
+                if($data['role'] != 'deactivate'){
+                    $userexist->roles()->detach();
+                    $userexist->assignRole($data['role']);
+                }
+
 
                 $company = Company::where('id', $data['company'])->with('users')->first();
                 $year = Year::where('company_id', $company->id)->first();
@@ -233,18 +239,16 @@ class DashboardController extends Controller
                 {
                     if($comp_user->email == $data['email'])
                     {
-
                         $check = false;
                         break;
                     }
                 }
                 if($check)
                 {
-
-
                     $company->users()->attach($userexist->id);
-
-
+                }
+                if($data['role'] == 'deactivate'){
+                    $company->users()->detach($userexist->id);
                 }
             } else {
                 return Redirect::back()->with('warning', 'User email doesn\'t exists');
@@ -255,29 +259,49 @@ class DashboardController extends Controller
                     $set_comp = Setting::where('user_id', $userexist->id)->where('key', 'active_company')->first();
                     $set_year = Setting::where('user_id', $userexist->id)->where('key', 'active_year')->first();
 
-                    if ($set_comp) {
-                        $set_comp->value = $company->id;
-                        $set_comp->save();
-                    } else {
-                        // Create Active Company Setting
-                        Setting::create([
-                            'key' => 'active_company',
-                            'value' => $company->id,
-                            'user_id' => $userexist->id,
-                        ]);
-                    }
-                    if ($set_year) {
-                        $set_year->value = $year->id;
-                        $set_year->save();
-                    } else {
-                        // Create Active Year Setting
-                        Setting::create([
-                            'key' => 'active_year',
-                            'value' => $year->id,
-                            'user_id' => $userexist->id,
-                        ]);
-                    }
+                    if($data['role'] == 'deactivate'){
 
+                        if($userexist->companies()->first()){
+                            if ($set_comp) {
+                                $set_comp->value = $userexist->companies()->first()->id;
+                                $set_comp->save();
+                            }
+                            if ($set_year) {
+                                $set_year->value = $userexist->companies()->first()->year->id;
+                                $set_year->save();
+                            }
+                        }else{
+                            if ($set_comp) {
+                                $set_comp->delete();
+                            }
+                            if ($set_year) {
+                                $set_year->delete();
+                            }
+                        }
+                    }else{
+                        if ($set_comp) {
+                            $set_comp->value = $company->id;
+                            $set_comp->save();
+                        } else {
+                            // Create Active Company Setting
+                            Setting::create([
+                                'key' => 'active_company',
+                                'value' => $company->id,
+                                'user_id' => $userexist->id,
+                            ]);
+                        }
+                        if ($set_year) {
+                            $set_year->value = $year->id;
+                            $set_year->save();
+                        } else {
+                            // Create Active Year Setting
+                            Setting::create([
+                                'key' => 'active_year',
+                                'value' => $year->id,
+                                'user_id' => $userexist->id,
+                            ]);
+                        }
+                    }
         return Redirect::back()->with('success', 'Role assigned.');
     }
 

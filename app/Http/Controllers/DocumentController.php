@@ -36,7 +36,7 @@ class DocumentController extends Controller
 
             if (request()->has('search')) {
                 $search_word = $req->search;
-                $obj_data = Document::select("*")
+                $obj_data = Document::select("*")->orderBy('id','Desc')
                     ->where(function ($query) use ($search_word) {
                         $query
                             ->where('company_id', session('company_id'))
@@ -70,7 +70,7 @@ class DocumentController extends Controller
                 });
             } else {
                 $obj_data = Document::where('company_id', session('company_id'))
-                    ->where('year_id', session('year_id'))
+                    ->where('year_id', session('year_id'))->orderBy('id','Desc')
                     ->get();
                 $mapped_data = $obj_data->map(function ($document, $key) {
                     return [
