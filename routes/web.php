@@ -99,6 +99,10 @@ Route::get('trialbalance', [ReportController::class, 'trialbalance_accToDate'])
     ->name('trialbalance')
     ->middleware('auth');
 
+Route::get('transactions-detail', [ReportController::class, 'transactions_detail_accToDate'])
+    ->name('transactions_detail')
+    ->middleware('auth');
+
 //Balance Sheet -------------------- Starts ---------------------------
 // Route::get('bs', [ReportController::class, 'bs'])
 //     ->name('bs')

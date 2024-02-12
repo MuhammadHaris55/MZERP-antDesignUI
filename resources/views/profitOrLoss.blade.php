@@ -90,6 +90,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
+                ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -112,6 +113,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -151,6 +153,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
+                ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -173,6 +176,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -205,6 +209,8 @@
                     </th>
                     <th colspan='2' align="right" style="width: 30%;">
                         <h5>Generated on: {{ $dt }}</h5>
+                        <h5> {{'Form: '.Carbon\Carbon::create($start_date)->format('M d, Y'). ' To: '. Carbon\Carbon::create($date)->format('M d, Y')}}</h5>
+
                     </th>
                 </tr>
                 <tr>

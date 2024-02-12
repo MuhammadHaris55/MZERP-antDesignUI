@@ -33,7 +33,7 @@
         </template>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
             <div>
-                <h2 class="text-2xl font-semibold">Trial Balance</h2>
+                <h2 class="text-2xl font-semibold">Transactions Detail</h2>
             </div>
             <a
                 href="https://youtu.be/XSY68ycuwy0"
@@ -42,81 +42,171 @@
                 style="float: right"
                 >Help</a
             >
-            <a-row>
-                <a-col :span="12">
-                    <label>As at: </label>
-                    <form
-                        target="_blank"
-                        @submit.prevent="submit_trial_range"
-                        v-bind:action="'trialbalance'"
-                        ref="form_trial_range"
-                    >
-                        <a-input
-                            :min="form.start"
-                            :max="form.end"
-                            v-model:value="form.date"
-                            style="width: 70%"
-                            type="date"
-                            label="date"
-                            placeholder="Enter Begin date:"
-                            class="pr-2 ml-2 pb-2 rounded-md"
-                            name="date"
-                            required
-                        />
 
-                        <Button
-                            type="primary"
-                            :disabled="form.processing"
-                            htmlType="submit"
-                            >Trial Balance</Button
-                        >
-                        <!-- </div> -->
-                    </form>
-                </a-col>
-            </a-row>
+            <form
+                target="_blank"
+                class="ant-form ant-form-inline"
+                @submit.prevent="submit_transactions_range"
+                v-bind:action="'transactions-detail'"
+                ref="form_transactions_range"
+            >
+                <a-form-item label="From">
+                    <a-input
+                        :min="form.start"
+                        :max="form.end"
+                        v-model:value="form.start_date"
+                        type="date"
+                        label="date"
+                        placeholder="Enter Begin date:"
+                        class="pr-2 ml-2 pb-2 rounded-md"
+                        name="start_date"
+                        required
+                    />
+                </a-form-item>
+                <a-form-item label="To">
+                    <a-input
+                        :min="form.start"
+                        :max="form.end"
+                        v-model:value="form.date"
+                        type="date"
+                        label="date"
+                        placeholder="Enter Begin date:"
+                        class="pr-2 ml-2 pb-2 rounded-md"
+                        name="date"
+                        required
+                    />
+                </a-form-item>
+                <a-form-item>
+                    <Button
+                        type="primary"
+                        :disabled="form.processing"
+                        htmlType="submit"
+                        >Transactions Detail</Button
+                    >
+                </a-form-item>
+                <!-- </div> -->
+            </form>
+
             <br />
+            <br />
+            <div>
+                <h2 class="text-2xl font-semibold">Trial Balance</h2>
+            </div>
+
+            <form
+                target="_blank"
+                class="ant-form ant-form-inline"
+                @submit.prevent="submit_trial_range"
+                v-bind:action="'trialbalance'"
+                ref="form_trial_range"
+            >
+                <a-form-item label="From">
+                    <a-input
+                        :min="form.start"
+                        :max="form.end"
+                        v-model:value="form.start_date"
+                        type="date"
+                        label="date"
+                        placeholder="Enter Begin date:"
+                        class="pr-2 ml-2 pb-2 rounded-md"
+                        name="start_date"
+                        required
+                    />
+                </a-form-item>
+                <a-form-item label="To">
+                    <a-input
+                        :min="form.start"
+                        :max="form.end"
+                        v-model:value="form.date"
+                        type="date"
+                        label="date"
+                        placeholder="Enter Begin date:"
+                        class="pr-2 ml-2 pb-2 rounded-md"
+                        name="date"
+                        required
+                    />
+                </a-form-item>
+                <a-form-item>
+                    <Button
+                        type="primary"
+                        :disabled="form.processing"
+                        htmlType="submit"
+                        >Trial Balance</Button
+                    >
+                </a-form-item>
+                <!-- </div> -->
+            </form>
+            <br />
+            <br />
+
             <div>
                 <h2 class="text-2xl font-semibold">Financial Statements</h2>
             </div>
-            <a-row>
-                <a-col :span="12">
-                    <label>As at: </label>
-                    <form
-                        target="_blank"
-                        @submit.prevent="submit_bs_range"
-                        v-bind:action="'bs'"
-                        ref="form_bs_range"
-                    >
+
+            <div class="ant-row">
+                <form
+                    target="_blank"
+                    @submit.prevent="submit_bs_range"
+                    v-bind:action="'bs'"
+                    ref="form_bs_range"
+                    class="ant-form ant-form-inline"
+                >
+                    <a-form-item label="From">
+                        <a-input
+                            :min="form.start"
+                            :max="form.end"
+                            v-model:value="form.start_date"
+                            type="date"
+                            label="date"
+                            placeholder="Enter Begin date:"
+                            class="rounded-md"
+                            name="start_date"
+                            required
+                        />
+                    </a-form-item>
+                    <a-form-item label="To">
                         <a-input
                             :min="form.start"
                             :max="form.end"
                             v-model:value="form.date"
-                            style="width: 70%"
                             type="date"
                             label="date"
                             placeholder="Enter Begin date:"
-                            class="pr-2 ml-2 pb-2 rounded-md"
+                            class="rounded-md"
                             name="date"
                             required
                         />
-
+                    </a-form-item>
+                    <a-form-item>
                         <Button
                             type="primary"
                             :disabled="form.processing"
                             htmlType="submit"
                             >Balance Sheet</Button
                         >
-                    </form>
-                </a-col>
-                <a-col :span="12">
+                    </a-form-item>
+                </form>
+                <a-form-item>
                     <form
                         target="_blank"
                         @submit.prevent="submit_pl_range"
                         v-bind:action="'pl'"
                         ref="form_pl_range"
-                        class="inline-block"
+                        class="ant-form ant-form-inline"
                     >
-                        <br />
+                        <a-input
+                            :min="form.start"
+                            :max="form.end"
+                            v-model:value="form.start_date"
+                            type="date"
+                            label="date"
+                            placeholder="Enter Begin date:"
+                            class="rounded-md"
+                            name="start_date"
+                            required
+                            hidden
+                        />
+
                         <a-input
                             :min="form.start"
                             :max="form.end"
@@ -125,7 +215,7 @@
                             type="date"
                             label="date"
                             placeholder="Enter Begin date:"
-                            class="pr-2 ml-2 pb-2 rounded-md"
+                            class="rounded-md"
                             name="date"
                             hidden
                             required
@@ -138,8 +228,8 @@
                             >Profit or Loss A/C</Button
                         >
                     </form>
-                </a-col>
-            </a-row>
+                </a-form-item>
+            </div>
             <br />
             <div>
                 <h2 class="text-2xl font-semibold">Ledger</h2>
@@ -173,7 +263,21 @@
                             />
                         </div>
                         <div class="col-span-1">
-                            <label> As at:</label>
+                            <label> From:</label>
+                            <a-input
+                                :min="form.start"
+                                :max="form.end"
+                                v-model:value="form_multi_ledger.start_date"
+                                style="width: 100%"
+                                type="date"
+                                label="date"
+                                placeholder="Enter Begin date:"
+                                class="pr-2 ml-2 pb-2 rounded-md"
+                                required
+                            />
+                        </div>
+                        <div class="col-span-1">
+                            <label> To:</label>
                             <a-input
                                 :min="form.start"
                                 :max="form.end"
@@ -186,7 +290,7 @@
                                 required
                             />
                         </div>
-                        <div class="col-span-2">
+                        <div class="col-span-1">
                             <Button
                                 type="primary"
                                 :disabled="form.processing"
@@ -218,7 +322,17 @@
                                     class="w-full"
                                     hidden
                                 />
-
+                                <a-input
+                                    :min="form.start"
+                                    :max="form.end"
+                                    v-model:value="form_multi_ledger.start_date"
+                                    style="width: 100%"
+                                    type="date"
+                                    label="date"
+                                    placeholder="Enter Begin date:"
+                                    class="pr-2 ml-2 pb-2 rounded-md"
+                                    hidden
+                                />
                                 <a-input
                                     :min="form.start"
                                     :max="form.end"
@@ -309,6 +423,7 @@ export default {
 
             form: {
                 date: this.date ? this.date : this.max_end,
+                start_date: this.date ? this.date : this.min_start,
                 start: this.min_start
                     ? this.min_start
                     : new Date().toISOString().substr(0, 10),
@@ -325,6 +440,7 @@ export default {
             form_multi_ledger: {
                 account: [],
                 date: this.date ? this.date : this.max_end,
+                start_date: this.date ? this.date : this.min_start,
             },
 
             //   form: {
@@ -346,6 +462,9 @@ export default {
     //   },
 
     methods: {
+        submit_transactions_range: function () {
+            this.$refs.form_transactions_range.submit();
+        },
         submit_trial_range: function () {
             this.$refs.form_trial_range.submit();
         },

@@ -192,12 +192,31 @@ class ReportController extends Controller
         return $pdf->stream('v.pdf');
     }
 
+     // ----------------------- FOR Transaction Detail GENERATION -------------------------- --------
+    //Accordign to date
+    public function transactions_detail_accToDate(Req $request)
+    {
+
+        $data['date'] = $request->date;
+        $data['start_date'] = $request->start_date;
+        $data['transactions'] = Document::where('company_id', session('company_id'))
+            ->where('year_id', session('year_id'))
+            ->whereDate('documents.date', '>=', $request->start_date)
+            ->whereDate('documents.date', '<=', $request->date)
+            ->get();
+        $tb = App::make('dompdf.wrapper');
+        $tb->loadView('transactions_detail', $data);
+        return $tb->stream('transactions_detail.pdf');
+    }
+    // ----------------------- Transaction Detail GENERATION ends -------------------------- --------
+
 
     // ----------------------- FOR trialbalance GENERATION -------------------------- --------
     //Accordign to date
     public function trialbalance_accToDate(Req $request)
     {
         $data['date'] = $request->date;
+        $data['start_date'] = $request->start_date;
         $data['account_groups'] = AccountGroup::where('company_id', session('company_id'))
             ->orderBy('type_id')
             ->orderBy('parent_id')
@@ -222,7 +241,9 @@ class ReportController extends Controller
     //Accordign to date
     public function bs_accToDate(Req $request)
     {
+
         $data['date'] = $request->date;
+        $data['start_date'] = $request->start_date;
         $bs = App::make('dompdf.wrapper');
         $bs->loadView('balanceSheet', $data);
         return $bs->stream('bs.pdf');
@@ -238,6 +259,7 @@ class ReportController extends Controller
     public function pl_accToDate(Req $request)
     {
         $data['date'] = $request->date;
+        $data['start_date'] = $request->start_date;
         $pl = App::make('dompdf.wrapper');
         $pl->loadView('profitOrLoss', $data);
         return $pl->stream('pl.pdf');
@@ -246,8 +268,8 @@ class ReportController extends Controller
 
 
     public function multi_ledger_pdf($data){
-
         $request = json_decode($data, true);
+
         if(count($request['account']) > 0){
              if (in_array("0", $request['account']))
             {
@@ -260,7 +282,7 @@ class ReportController extends Controller
 
              if ($accounts) {
                 $year = Year::where('id', session('year_id'))->first();
-                $start = new Carbon($year->begin);
+                $start = new Carbon($request['start_date']);
                 $start = $start->format('Y-m-d');
                 $end = new Carbon($request['date']);
                 $end = $end->format('Y-m-d');
@@ -305,7 +327,7 @@ class ReportController extends Controller
 
             if ($accounts) {
                 $year = Year::where('id', session('year_id'))->first();
-                $start = new Carbon($year->begin);
+                $start = new Carbon($request['start_date']);
                 $start = $start->format('Y-m-d');
                 $end = new Carbon($request['date']);
                 $end = $end->format('Y-m-d');
@@ -385,7 +407,7 @@ class ReportController extends Controller
 
         $data['acc'] = Account::where('id', '=',$account->id)->where('company_id', session('company_id'))->first();
         $data['period'] = "From " . strval($start) . " to " . strval($end);
-    $spreadsheet->getDefaultStyle()->getAlignment()->setWrapText(true);
+        $spreadsheet->getDefaultStyle()->getAlignment()->setWrapText(true);
         foreach (range('A', 'F') as $k => $col) {
             if($col == 'C'){
                 $spreadsheet->getSheet($key)->getColumnDimension('C')->setWidth(40);

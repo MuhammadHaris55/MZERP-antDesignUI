@@ -88,6 +88,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
+                 ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -110,6 +111,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -123,7 +125,7 @@
             }
             $gbalance1[$gi][$gite1] = $balance;
             if (count($group->children) > 0) {
-                $gbalance1[$gi][$gite1++] = recurse($date, $group, $year, $balance, $lastbalance, 1);
+                $gbalance1[$gi][$gite1++] = recurse($start_date , $date, $group, $year, $balance, $lastbalance, 1);
             } else {
                 $gite1++;
             }
@@ -134,7 +136,7 @@
     // dd($gbalance1);
     // @dd($date);
     // =================== Recursive function ============================
-    function recurse($date, $gr, $year, $balance, $lastbalance, $for_total)
+    function recurse($start_date, $date, $gr, $year, $balance, $lastbalance, $for_total)
     {
         foreach ($gr->children as $group) {
             foreach ($group->accounts as $account) {
@@ -142,6 +144,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -162,7 +165,7 @@
                 }
             }
             if (count($group->children) > 0) {
-                recurse($date, $group, $year, $balance, $lastbalance);
+                recurse($start_date , $date, $group, $year, $balance, $lastbalance);
             }
         }
         return $balance;
@@ -187,6 +190,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
+                ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -210,6 +214,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -223,7 +228,7 @@
             }
             $gbalance2[$gi][$gite1] = $balance;
             if (count($group->children) > 0) {
-                $gbalance2[$gi][$gite1++] = recurse($date, $group, $year, $balance, $lastbalance, 0);
+                $gbalance2[$gi][$gite1++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 0);
             } else {
                 $gite1++;
             }
@@ -249,6 +254,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
+                ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -271,6 +277,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -284,7 +291,7 @@
             }
             $gbalance3[$gi][$gite3] = $balance;
             if (count($group->children) > 0) {
-                $gbalance3[$gi][$gite3++] = recurse($date, $group, $year, $balance, $lastbalance, 0);
+                $gbalance3[$gi][$gite3++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 0);
             } else {
                 $gite3++;
             }
@@ -312,6 +319,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
+                ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -336,6 +344,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -351,7 +360,7 @@
             $balance_total4[$balance4_inc++] = $balance;
 
             if (count($group->children) > 0) {
-                $gbalance4[$gi][$gite4++] = recurse($date, $group, $year, $balance, $lastbalance, 0);
+                $gbalance4[$gi][$gite4++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 0);
             } else {
                 $gite4++;
             }
@@ -379,6 +388,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
+                ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -402,6 +412,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
+                    ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -417,7 +428,7 @@
             $balance_total5[$balance5_inc++] = $balance;
 
             if (count($group->children) > 0) {
-                $gbalance5[$gi][$gite5++] = recurse($date, $group, $year, $balance, $lastbalance, 1);
+                $gbalance5[$gi][$gite5++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 1);
             } else {
                 $gite5++;
             }
@@ -431,11 +442,12 @@
         <table width="100%" style="border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th style="width: 50%;align:left">
+                     <th align="left" style="width: 50%;">
                         <h3>Balance Sheet</h3>
                     </th>
-                    <th colspan='2' style="width: 30%;align:right">
+                    <th colspan='2' align="right" style="width: 30%;">
                         <h5>Generated on: {{ $dt }}</h5>
+                        <h5> {{'Form: '.Carbon\Carbon::create($start_date)->format('M d, Y'). ' To: '. Carbon\Carbon::create($date)->format('M d, Y')}}</h5>
                     </th>
                 </tr>
                 <tr>
