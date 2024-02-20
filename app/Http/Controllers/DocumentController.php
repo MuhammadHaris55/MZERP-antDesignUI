@@ -114,6 +114,197 @@ class DocumentController extends Controller
         }
     }
 
+        public function documents_detail(Req $req)
+    {
+        //Validating request
+
+        request()->validate([
+            'direction' => ['in:asc,desc'],
+            'field' => ['in:name,email']
+        ]);
+
+        // $acc = Account::where('company_id', session('company_id'))->count();
+        // $doc_ty = DocumentType::where('company_id', session('company_id'))->first();
+
+        // $yearclosed = year::where('id', session('year_id'))->where('closed', 0)->first();
+        // if ($acc >= 2  && $doc_ty) {
+            $date_range = Year::where('id', session('year_id'))->first();
+            $start = new Carbon($date_range->begin);
+            $end = new Carbon($date_range->end);
+
+            if (request()->has('search') && request()->has('date_start') && request()->has('date_end') ) {
+
+                $start = Carbon::create($start);
+                $ReqStart = Carbon::create($req->date_start);
+                $ReqEnd = Carbon::create($req->date_end);
+                // dd($start, $ReqStart);
+                if($start->greaterThan($ReqStart) || $start->greaterThan($ReqEnd)){
+                     return Redirect::route('documents_detail')->with('warning', 'Dates Not Correct');
+                }
+                $ReqStart = $ReqStart->format('Y-m-d');
+                $ReqEnd = $ReqEnd->format('Y-m-d');
+
+                // if($end >> request()->has('date_end')){
+                //      return Redirect::route('documenttypes')->with('warning', 'Date End NOT FOUND, Please create voucher first.');
+                // }
+
+                $search_word = $req->search;
+
+
+                $obj_data = Entry::orderBy('id','Asc')
+                    ->where(function ($query) use ($search_word , $ReqStart , $ReqEnd) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                            ->whereHas('document',function($r) use ($search_word , $ReqStart , $ReqEnd)  {
+                                $r->where('description', 'LIKE', '%' . $search_word . '%');
+                                $r->where('date', '>=', $ReqStart )->where('date', '<=', $ReqEnd );
+
+                            });
+                    })->orWhere(function ($query) use ($search_word, $ReqStart , $ReqEnd) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                             ->whereHas('document',function($r) use ($search_word, $ReqStart , $ReqEnd){
+                                $r->where('ref', 'LIKE', '%' . $search_word . '%');
+                                    $r->where('date', '>=', $ReqStart )->where('date', '<=', $ReqEnd );
+
+                                });
+                    })->orWhere(function ($query) use ($search_word, $ReqStart , $ReqEnd) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                            ->whereHas('document',function($r) use ($search_word, $ReqStart , $ReqEnd) {
+                            // $search_word = Carbon::create($search_word)->toDateString();
+                                $r->where('date', 'LIKE', '%' . $search_word . '%');
+                                    $r->where('date', '>=', $ReqStart )->where('date', '<=', $ReqEnd );
+
+                            });
+                    })->orWhere(function ($query) use ($search_word, $ReqStart , $ReqEnd) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                            ->where('debit', 'LIKE', '%' . $search_word . '%')
+                            ->whereHas('document',function($r) use ($search_word, $ReqStart , $ReqEnd) {
+                                    $r->where('date', '>=', $ReqStart )->where('date', '<=', $ReqEnd );
+
+                            });
+
+
+                    })
+                    ->orWhere(function ($query) use ($search_word, $ReqStart , $ReqEnd) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                            ->where('credit', 'LIKE', '%' . $search_word . '%')
+                            ->whereHas('document',function($r) use ($search_word, $ReqStart , $ReqEnd) {
+                                    $r->where('date', '>=', $ReqStart )->where('date', '<=', $ReqEnd );
+
+                            });
+
+                    })
+                    ->orWhere(function ($query) use ($search_word, $ReqStart , $ReqEnd) {
+                        $query
+                            ->where('company_id', session('company_id'))
+                            ->where('year_id', session('year_id'))
+                             ->whereHas('document',function($r) use ($search_word, $ReqStart , $ReqEnd) {
+                                    $r->where('date', '>=', $ReqStart )->where('date', '<=', $ReqEnd );
+
+                            })
+                            ->whereHas('account',function($r) use ($search_word){
+                                $r->where('name', 'LIKE', '%' . $search_word . '%');
+                           });
+
+                    })->orderBy('created_at','desc')->get();
+
+                $mapped_data = $obj_data->map(function ($entry, $key) {
+
+                    if(strlen($entry->document->description) < 25){
+                        $description = $entry->document->description;
+                    }else{
+                        $description = substr_replace($entry->document->description , '...', 25);
+                    }
+
+
+                    return [
+                        'ref' => $entry->document->ref,
+
+                        // $date = new Carbon($entry->document->date),
+                        'date' => $entry->document->date,
+                        'description' => $description,
+                        'type_id' => $entry->document->type_id,
+                        'company_id' => session('company_id'),
+                        'year_id' => session('year_id'),
+                        'account' => $entry->account->name .' - '.$entry->account->accountGroup->name,
+                        'debit' =>$entry->debit ? number_format($entry->debit, 2) : 0.00,
+                        'credit' => $entry->credit ?  number_format($entry->credit, 2) : 0.00,
+                    ];
+                });
+            } else {
+
+                $obj_data = Entry::where('company_id', session('company_id'))
+                    ->where('year_id', session('year_id'))
+                    ->whereHas('document',function($r) use ($start){
+                            $r->where('date', '>=', $start->format('Y-m-d') )->where('date', '<=', $start->format('Y-m-d'));
+
+                        })->
+
+                    orderBy('id','desc')->get();
+
+                $mapped_data = $obj_data->map(function ($entry, $key) {
+
+                    if(strlen($entry->document->description) < 25){
+                        $description = $entry->document->description;
+                    }else{
+                        $description = substr_replace($entry->document->description , '...', 25);
+                    }
+                    return [
+
+                        'ref' => $entry->document->ref,
+                        // $date = new Carbon($entry->document->date),
+                        'date' =>$entry->document->date,
+                        'description' => $description,
+                        'type_id' => $entry->document->type_id,
+                        'company_id' => session('company_id'),
+                        'year_id' => session('year_id'),
+                        'account' => $entry->account->name .' - '.$entry->account->accountGroup->name,
+                        'debit' =>$entry->debit ? number_format($entry->debit, 2) : 0.00,
+                        'credit' => $entry->credit ?  number_format($entry->credit, 2) : 0.00,
+                    ];
+                });
+            }
+
+            return Inertia::render(
+                'Documents/IndexDetail',
+                [
+                    'can' => [
+                        'edit' => auth()->user()->can('edit'),
+                        'create' => auth()->user()->can('create'),
+                        'delete' => auth()->user()->can('delete'),
+                        'read' => auth()->user()->can('read'),
+                    ],
+                    'mapped_data' => $mapped_data,
+                    'date_start' => $start->format('Y-m-d'),
+                    'date_end' => $end->format('Y-m-d'),
+                    'min_start' => $date_range->begin,
+                    'max_end' => $date_range->end,
+                    // 'data' => $docs,
+                    // 'yearclosed' => $yearclosed,
+                    'filters' => request()->all(['search', 'date_start' , 'date_end',  'field', 'direction']),
+                    'company' => companies_first(),
+                    'companies' => companies_get(),
+                    'years' => years_get(),
+                    'year' => years_first(),
+                ]
+            );
+        // } elseif ($acc >= 2) {
+        //     return Redirect::route('documenttypes')->with('warning', 'VOUCHER NOT FOUND, Please create voucher first.');
+        // } else {
+        //     return Redirect::route('accounts')->with('warning', 'ACCOUNT NOT FOUND, Please create an account first.');
+        // }
+    }
+
+
     public function create()
     {
         if (auth()->user()->roles->first()->name == 'user') {

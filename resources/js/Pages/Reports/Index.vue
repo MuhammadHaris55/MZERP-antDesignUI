@@ -32,16 +32,9 @@
             </div>
         </template>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 py-4">
-            <div>
+            <!-- <div>
                 <h2 class="text-2xl font-semibold">Transactions Detail</h2>
             </div>
-            <a
-                href="https://youtu.be/XSY68ycuwy0"
-                target="_blank"
-                class="ant-btn ant-btn-sm ml-2"
-                style="float: right"
-                >Help</a
-            >
 
             <form
                 target="_blank"
@@ -84,15 +77,19 @@
                         >Transactions Detail</Button
                     >
                 </a-form-item>
-                <!-- </div> -->
             </form>
+                 -->
 
-            <br />
-            <br />
             <div>
                 <h2 class="text-2xl font-semibold">Trial Balance</h2>
             </div>
-
+            <a
+                href="https://youtu.be/XSY68ycuwy0"
+                target="_blank"
+                class="ant-btn ant-btn-sm ml-2"
+                style="float: right"
+                >Help</a
+            >
             <form
                 target="_blank"
                 class="ant-form ant-form-inline"

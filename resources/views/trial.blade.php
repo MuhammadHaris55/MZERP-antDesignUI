@@ -119,9 +119,9 @@
 
             for ($i = 0; $i < count($obalance[$acc_count]); $i++) {
                 if ($obalance[$acc_count][$i] > 0) {
-                    $debit = $debit + $obalance[$acc_count][$i];
+                    $debit = $debit - $obalance[$acc_count][$i];
                 } else {
-                    $credit = $credit + $obalance[$acc_count][$i];
+                    $credit = $credit - $obalance[$acc_count][$i];
                 }
             }
             $acc_count++;

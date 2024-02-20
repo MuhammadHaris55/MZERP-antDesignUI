@@ -195,6 +195,24 @@
 
                 <MenuItem
                     v-if="this.$page.props.co_id && this.$page.props.yr_id"
+                    key="11"
+                >
+                    <desktop-outlined />
+                    <jet-nav-link
+                        :href="route('documents_detail')"
+                        :active="route().current('documents_detail')"
+                    >
+                        <LineChartOutlined
+                            v-if="collapsed"
+                            class="icon-on-collapsed"
+                        />
+                        <span else>Transactions Detail</span>
+                    </jet-nav-link>
+
+                    <!-- <span>Option 2</span> -->
+                </MenuItem>
+                <MenuItem
+                    v-if="this.$page.props.co_id && this.$page.props.yr_id"
                     key="7"
                 >
                     <desktop-outlined />

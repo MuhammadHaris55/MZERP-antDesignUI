@@ -281,6 +281,10 @@ Route::get('documents', [DocumentController::class, 'index'])
     ->name('documents')
     ->middleware('auth');
 
+Route::get('documents-detail', [DocumentController::class, 'documents_detail'])
+->name('documents_detail')
+->middleware('auth');
+
 Route::get('documents/create', [DocumentController::class, 'create'])
     ->name('documents.create')
     ->middleware('auth');
