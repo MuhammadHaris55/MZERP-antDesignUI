@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\AccountGroupController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\DocumentTypeController;
@@ -193,7 +194,15 @@ Route::delete('accountgroups/{accountgroup}', [AccountGroupController::class, 'd
 Route::get('users', [UserController::class, 'index'])
     ->name('users')
     ->middleware('auth');
+//SETTINGS
 
+Route::get('settings', [SettingController::class, 'index'])
+    ->name('settings')
+    ->middleware('auth');
+
+Route::post('settings-store', [SettingController::class, 'store'])
+    ->name('settings.store')
+    ->middleware('auth');
 
 //COMPANIES -------------------- STARTS ---------------------------
 Route::get('companies', [CompanyController::class, 'index'])

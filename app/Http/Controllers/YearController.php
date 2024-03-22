@@ -221,7 +221,7 @@ class YearController extends Controller
         if($cls_acc_id){
             $claccount = Account::find($cls_acc_id->value);
         }else{
-            return Redirect::route('years')->with('warning', "Retain Earnings Account Not Found" );
+            return Redirect::route('settings')->with('warning', "Closing Account Not Found" );
         }
         DB::transaction(function () use ($id , $claccount) {
             $year =  \App\Models\Year::where('company_id', session('company_id'))->where('id', $id)->first();

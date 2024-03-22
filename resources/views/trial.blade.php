@@ -95,7 +95,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //TO generate trial according to date
-                    ->whereDate('documents.date', '>=', $start_date)
+                    // ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -116,12 +116,13 @@
                 $obalance[$acc_count][$oite++] = $balance;
                 $acc_groups[$acc_count] = $account_group->name;
             }
-
+            // echo "<pre>";
+            // print_r($obalance[$acc_count]);
             for ($i = 0; $i < count($obalance[$acc_count]); $i++) {
                 if ($obalance[$acc_count][$i] > 0) {
-                    $debit = $debit - $obalance[$acc_count][$i];
+                    $debit = $debit + $obalance[$acc_count][$i];
                 } else {
-                    $credit = $credit - $obalance[$acc_count][$i];
+                    $credit = $credit + $obalance[$acc_count][$i];
                 }
             }
             $acc_count++;

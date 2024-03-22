@@ -247,6 +247,7 @@
                         class="px-4 py-2 flex justify-center items-center"
                     >
                         <a-button
+                            v-if="closed"
                             type="primary"
                             :disabled="form.processing"
                             @click="submit()"

@@ -67,11 +67,12 @@
     $fmt->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 0);
     $fmt->setSymbol(NumberFormatter::CURRENCY_SYMBOL, '');
     $dt = \Carbon\Carbon::now(new DateTimeZone('Asia/Karachi'))->format('M d, Y - h:m a');
-    $year = \App\Models\Year::where('company_id', session('company_id'))
-        ->where('enabled', 1)
-        ->first();
+    // $year = \App\Models\Year::where('company_id', session('company_id'))
+    //     ->where('enabled', 1)
+    //     ->first();
+    //     // dd($year);
     $year = \App\Models\Year::find(session('year_id'));
-
+    // dd($year->closed);
     $id4 = \App\Models\AccountType::where('name', 'Revenue')->first()->id;
     $grps4 = \App\Models\AccountGroup::where('company_id', session('company_id'))
         ->where('type_id', $id4)
@@ -90,16 +91,27 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                ->whereDate('documents.date', '>=', $start_date)
+                // ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
-                ->select('entries.debit', 'entries.credit')
+                ->select('entries.debit', 'entries.credit', 'entries.document_id')
                 ->get();
-
-            foreach ($entries as $entry) {
-                $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
-                $lastbalance = $balance;
+            if($year->closed == 1){
+               $doc =  App\Models\Document::where('company_id', session('company_id'))->where('year_id', session('year_id'))->orderBy('id','desc')->first();
+                foreach ($entries as $entry) {
+                    if($entry->document_id == $doc->id){
+                        continue;
+                    }else{
+                        $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
+                        $lastbalance = $balance;
+                    }
+                }
+            }else{
+                foreach ($entries as $entry) {
+                    $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
+                    $lastbalance = $balance;
+                }
             }
         }
         $gbalance44[$gi] = $balance;
@@ -113,17 +125,31 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    ->whereDate('documents.date', '>=', $start_date)
+                    // ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
-                    ->select('entries.debit', 'entries.credit')
+                    ->select('entries.debit', 'entries.credit', 'entries.document_id')
                     ->get();
 
+            if($year->closed == 1){
+               $doc =  App\Models\Document::where('company_id', session('company_id'))->where('year_id', session('year_id'))->orderBy('id','desc')->first();
+                foreach ($entries as $entry) {
+                    if($entry->document_id == $doc->id){
+                        continue;
+                    }else{
+                        $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
+                        $lastbalance = $balance;
+                    }
+                }
+            }else{
                 foreach ($entries as $entry) {
                     $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
                     $lastbalance = $balance;
                 }
+
+            }
+
             }
             $gbalance4[$gi][$gite4] = $balance;
             if (count($group->children) > 0) {
@@ -153,16 +179,27 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                ->whereDate('documents.date', '>=', $start_date)
+                // ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
-                ->select('entries.debit', 'entries.credit')
+                ->select('entries.debit', 'entries.credit', 'entries.document_id')
                 ->get();
-
-            foreach ($entries as $entry) {
-                $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
-                $lastbalance = $balance;
+            if($year->closed == 1){
+               $doc =  App\Models\Document::where('company_id', session('company_id'))->where('year_id', session('year_id'))->orderBy('id','desc')->first();
+                foreach ($entries as $entry) {
+                    if($entry->document_id == $doc->id){
+                        continue;
+                    }else{
+                        $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
+                        $lastbalance = $balance;
+                    }
+                }
+            }else{
+                foreach ($entries as $entry) {
+                    $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
+                    $lastbalance = $balance;
+                }
             }
         }
         $gbalance55[$gi] = $balance;
@@ -176,16 +213,27 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    ->whereDate('documents.date', '>=', $start_date)
+                    // ->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
-                    ->select('entries.debit', 'entries.credit')
+                    ->select('entries.debit', 'entries.credit', 'entries.document_id')
                     ->get();
-
-                foreach ($entries as $entry) {
-                    $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
-                    $lastbalance = $balance;
+                if($year->closed == 1){
+                    $doc =  App\Models\Document::where('company_id', session('company_id'))->where('year_id', session('year_id'))->orderBy('id','desc')->first();
+                    foreach ($entries as $entry) {
+                        if($entry->document_id == $doc->id){
+                            continue;
+                        }else{
+                            $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
+                            $lastbalance = $balance;
+                            }
+                    }
+                }else{
+                    foreach ($entries as $entry) {
+                        $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
+                        $lastbalance = $balance;
+                    }
                 }
             }
             $gbalance5[$gi][$gite1] = $balance;

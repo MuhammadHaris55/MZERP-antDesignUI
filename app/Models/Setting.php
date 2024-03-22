@@ -20,4 +20,8 @@ class Setting extends Model
     public function user(){
         return $this->belongsTo('App\Models\User', 'user_id');
     }
+     public function account()
+    {
+        return $this->belongsTo('App\Models\Account', 'value');
+    }
 }

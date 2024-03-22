@@ -69,15 +69,15 @@ class DocumentController extends Controller
                     ];
                 });
             } else {
+                // dd(session('year_id'));
                 $obj_data = Document::where('company_id', session('company_id'))
                     ->where('year_id', session('year_id'))->orderBy('id','Desc')
                     ->get();
                 $mapped_data = $obj_data->map(function ($document, $key) {
+                    $date = new Carbon($document->date);
                     return [
                         'id' => $document->id,
                         'ref' => $document->ref,
-
-                        $date = new Carbon($document->date),
                         'date' => $date->format('M d, Y'),
                         'description' => $document->description,
                         'type_id' => $document->type_id,
@@ -87,6 +87,7 @@ class DocumentController extends Controller
                     ];
                 });
             }
+            // dd($mapped_data);
             return Inertia::render(
                 'Documents/Index',
                 [
@@ -243,13 +244,13 @@ class DocumentController extends Controller
             } else {
 
                 $obj_data = Entry::where('company_id', session('company_id'))
-                    ->where('year_id', session('year_id'))
-                    ->whereHas('document',function($r) use ($start){
-                            $r->where('date', '>=', $start->format('Y-m-d') )->where('date', '<=', $start->format('Y-m-d'));
+                    ->where('year_id', session('year_id'))->
+                    // ->whereHas('document',function($r) use ($start){
+                    //         $r->where('date', '>=', $start->format('Y-m-d') )->where('date', '<=', $start->format('Y-m-d'));
 
-                        })->
+                    //     })->
 
-                    orderBy('id','desc')->get();
+                    orderBy('document_id','desc')->get();
 
                 $mapped_data = $obj_data->map(function ($entry, $key) {
 
@@ -473,6 +474,7 @@ class DocumentController extends Controller
                 'doc_types' => $doc_types,
                 'entriess' => $entries,
                 'min_start' => $date_range->begin,
+                'closed' => $date_range->closed == 1 ? 'true' : 'false',
                 'max_end' => $date_range->end,
                 'can' => [
                     'edit' => auth()->user()->can('edit'),

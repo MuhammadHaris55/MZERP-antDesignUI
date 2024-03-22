@@ -97,7 +97,7 @@
                 v-bind:action="'trialbalance'"
                 ref="form_trial_range"
             >
-                <a-form-item label="From">
+                <!-- <a-form-item label="From">
                     <a-input
                         :min="form.start"
                         :max="form.end"
@@ -109,7 +109,7 @@
                         name="start_date"
                         required
                     />
-                </a-form-item>
+                </a-form-item> -->
                 <a-form-item label="To">
                     <a-input
                         :min="form.start"
@@ -135,7 +135,6 @@
             </form>
             <br />
             <br />
-
             <div>
                 <h2 class="text-2xl font-semibold">Financial Statements</h2>
             </div>
@@ -148,7 +147,7 @@
                     ref="form_bs_range"
                     class="ant-form ant-form-inline"
                 >
-                    <a-form-item label="From">
+                    <!-- <a-form-item label="From">
                         <a-input
                             :min="form.start"
                             :max="form.end"
@@ -160,7 +159,7 @@
                             name="start_date"
                             required
                         />
-                    </a-form-item>
+                    </a-form-item>-->
                     <a-form-item label="To">
                         <a-input
                             :min="form.start"
@@ -191,7 +190,7 @@
                         ref="form_pl_range"
                         class="ant-form ant-form-inline"
                     >
-                        <a-input
+                        <!--    <a-input
                             :min="form.start"
                             :max="form.end"
                             v-model:value="form.start_date"
@@ -202,7 +201,7 @@
                             name="start_date"
                             required
                             hidden
-                        />
+                        /> -->
 
                         <a-input
                             :min="form.start"

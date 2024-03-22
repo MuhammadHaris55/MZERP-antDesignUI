@@ -247,6 +247,24 @@
 
                     <!-- <span>Option 2</span> -->
                 </MenuItem>
+                <MenuItem
+                    v-if="this.$page.props.co_id && this.$page.props.yr_id"
+                    key="12"
+                >
+                    <desktop-outlined />
+                    <jet-nav-link
+                        :href="route('settings')"
+                        :active="route().current('settings')"
+                    >
+                        <TableOutlined
+                            v-if="collapsed"
+                            class="icon-on-collapsed"
+                        />
+                        <span else>Settings</span>
+                    </jet-nav-link>
+
+                    <!-- <span>Option 2</span> -->
+                </MenuItem>
                 <MenuItem key="9">
                     <jet-nav-link
                         :href="route('profile.show')"

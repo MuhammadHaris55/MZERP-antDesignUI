@@ -61,7 +61,6 @@ class ReportController extends Controller
             'companies' => companies_get(),
             'years' => years_get(),
             'year' => years_first(),
-
         ]);
     }
 
@@ -243,7 +242,7 @@ class ReportController extends Controller
     {
 
         $data['date'] = $request->date;
-        $data['start_date'] = $request->start_date;
+        $data['start_date'] = isset($request->start_date) ? $request->start_date : null;
         $bs = App::make('dompdf.wrapper');
         $bs->loadView('balanceSheet', $data);
         return $bs->stream('bs.pdf');
