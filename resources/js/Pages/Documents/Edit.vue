@@ -247,7 +247,7 @@
                         class="px-4 py-2 flex justify-center items-center"
                     >
                         <a-button
-                            v-if="closed"
+                            v-if="this.closed"
                             type="primary"
                             :disabled="form.processing"
                             @click="submit()"
@@ -296,7 +296,7 @@ export default {
 
         min_start: Object,
         max_end: Object,
-
+        closed: Object,
         can: Object,
     },
 

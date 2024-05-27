@@ -474,7 +474,7 @@ class DocumentController extends Controller
                 'doc_types' => $doc_types,
                 'entriess' => $entries,
                 'min_start' => $date_range->begin,
-                'closed' => $date_range->closed == 1 ? 'true' : 'false',
+                'closed' => $date_range->closed == 1 ? false  :  true,
                 'max_end' => $date_range->end,
                 'can' => [
                     'edit' => auth()->user()->can('edit'),
