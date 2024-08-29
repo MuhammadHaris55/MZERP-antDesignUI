@@ -69,7 +69,6 @@
     $year = \App\Models\Year::where('company_id', session('company_id'))
         ->where('enabled', 1)
         ->first();
-
     $id1 = \App\Models\AccountType::where('name', 'Assets')->first()->id;
     $grps1 = \App\Models\AccountGroup::where('company_id', session('company_id'))
         ->where('type_id', $id1)
@@ -88,7 +87,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                //  ->whereDate('documents.date', '>=', $start_date)
+                // ->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -111,7 +110,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -144,7 +143,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -190,7 +189,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                // ->whereDate('documents.date', '>=', $start_date)
+                //->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -214,7 +213,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -254,7 +253,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                // ->whereDate('documents.date', '>=', $start_date)
+                //->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -277,7 +276,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -319,7 +318,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                // ->whereDate('documents.date', '>=', $start_date)
+                //->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -344,7 +343,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
@@ -388,7 +387,7 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                // ->whereDate('documents.date', '>=', $start_date)
+                //->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
@@ -412,7 +411,7 @@
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
