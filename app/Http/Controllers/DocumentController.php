@@ -410,9 +410,9 @@ class DocumentController extends Controller
 
     public function edit(Document $document)
     {
-        if (auth()->user()->roles->first()->name == 'user') {
-            abort(403, 'You don\'t have access this page');
-        }
+        // if (auth()->user()->roles->first()->name == 'user') {
+        //     abort(403, 'You don\'t have access this page');
+        // }
         $accounts = Account::where('company_id', session('company_id'))->get()->map(function ($acc) {
             return [
                 "id" => $acc->id,

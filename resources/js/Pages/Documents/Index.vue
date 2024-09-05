@@ -67,14 +67,14 @@
                 Un-Select All</label
             >
             <label
-                v-else-if="yearclosed"
+                v-else-if="yearclosed && can['edit']"
                 class="ant-btn ant-btn-sm ml-2"
                 for="selected"
             >
                 Select All</label
             >
             <Button
-                v-if="yearclosed"
+                v-if="yearclosed && can['edit']"
                 danger
                 ghost
                 @click="selete()"
