@@ -9,7 +9,7 @@
             <div class="">
                 <form
                     @submit.prevent="
-                        this.difference == 0.0
+                        this.difference == 0.00
                             ? form.post(route('documents.store'))
                             : func()
                     "

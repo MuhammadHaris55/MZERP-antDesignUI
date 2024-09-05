@@ -349,7 +349,6 @@ class DocumentController extends Controller
 
     public function store(Req $request)
     {
-
         $validatedData = $request->validate([
             'type_id' => 'required',
             'date' => 'required|date',
@@ -397,8 +396,8 @@ class DocumentController extends Controller
                         'year_id' => $doc->year_id,
                         'account_id' => $entry['account_id'],
                         'document_id' => $doc->id,
-                        'debit' => $entry['debit'],
-                        'credit' => $entry['credit'],
+                        'debit' => floatval($entry['debit']),
+                        'credit' => floatval($entry['credit']),
                     ]);
                 }
             } catch (Exception $e) {

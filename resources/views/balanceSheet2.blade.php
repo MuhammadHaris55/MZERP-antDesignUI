@@ -66,115 +66,22 @@
     $fmt->setAttribute(NumberFormatter::MAX_FRACTION_DIGITS, 0);
     $fmt->setSymbol(NumberFormatter::CURRENCY_SYMBOL, '');
     $dt = \Carbon\Carbon::now(new DateTimeZone('Asia/Karachi'))->format('M d, Y - h:m a');
-    $year = \App\Models\Year::where('company_id', session('company_id'))->where('enabled', 1)->first();
-    
+    $year = \App\Models\Year::where('company_id', session('company_id'))
+        ->where('enabled', 1)
+        ->first();
     $id1 = \App\Models\AccountType::where('name', 'Assets')->first()->id;
-    $grps1 = \App\Models\AccountGroup::where('company_id', session('company_id'))->where('type_id', $id1)->tree()->get()->ToTree();
+    $grps1 = \App\Models\AccountGroup::where('company_id', session('company_id'))
+        ->where('type_id', $id1)
+        ->tree()
+        ->get()
+        ->ToTree();
     $gbalance1 = [];
     $gi = 0;
     foreach ($grps1 as $gr) {
         $gite1 = 0;
         $balance = 0;
         $lastbalance = 0;
-    
-        foreach ($gr->accounts as $account) {
-            $entries = Illuminate\Support\Facades\DB::table('documents')
-                ->join('entries', 'documents.id', '=', 'entries.document_id')
-                // ->whereDate('documents.date', '<=', $year->end)
-                //According to selected date
-                //  ->whereDate('documents.date', '>=', $start_date)
-                ->whereDate('documents.date', '<=', $date)
-                ->where('documents.company_id', session('company_id'))
-                ->where('entries.account_id', '=', $account->id)
-                ->select('entries.debit', 'entries.credit')
-                ->get();
-    
-            foreach ($entries as $entry) {
-                $balance = $lastbalance + round($entry->debit) - round($entry->credit);
-                $lastbalance = $balance;
-            }
-        }
-        $gbalance11[$gi] = $balance;
-    
-        foreach ($gr->children as $group) {
-            $balance = 0;
-            $lastbalance = 0;
-    
-            foreach ($group->accounts as $account) {
-                $entries = Illuminate\Support\Facades\DB::table('documents')
-                    ->join('entries', 'documents.id', '=', 'entries.document_id')
-                    // ->whereDate('documents.date', '<=', $year->end)
-                    //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
-                    ->whereDate('documents.date', '<=', $date)
-                    ->where('documents.company_id', session('company_id'))
-                    ->where('entries.account_id', '=', $account->id)
-                    ->select('entries.debit', 'entries.credit')
-                    ->get();
-    
-                foreach ($entries as $entry) {
-                    $balance = $lastbalance + round($entry->debit) - round($entry->credit);
-                    $lastbalance = $balance;
-                }
-            }
-            $gbalance1[$gi][$gite1] = $balance;
-            if (count($group->children) > 0) {
-                $gbalance1[$gi][$gite1++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 1);
-            } else {
-                $gite1++;
-            }
-        }
-        $gi++;
-    }
-    
-    // =================== Recursive function ============================
-    function recurse($start_date, $date, $gr, $year, $balance, $lastbalance, $for_total)
-    {
-        // $balance = 0;
-        // $lastbalance = 0;
-        foreach ($gr->children as $group) {
-            foreach ($group->accounts as $account) {
-                $entries = Illuminate\Support\Facades\DB::table('documents')
-                    ->join('entries', 'documents.id', '=', 'entries.document_id')
-                    // ->whereDate('documents.date', '<=', $year->end)
-                    //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
-                    ->whereDate('documents.date', '<=', $date)
-                    ->where('documents.company_id', session('company_id'))
-                    ->where('entries.account_id', '=', $account->id)
-                    ->select('entries.debit', 'entries.credit')
-                    ->get();
-    
-                // dd($entries);
-                if ($for_total == 1) {
-                    foreach ($entries as $entry) {
-                        $balance = $lastbalance + round($entry->debit) - round($entry->credit);
-                        $lastbalance = $balance;
-                    }
-                } else {
-                    foreach ($entries as $entry) {
-                        $balance = $lastbalance + round($entry->credit) - round($entry->debit);
-                        $lastbalance = $balance;
-                    }
-                }
-            }
-            if (count($group->children) > 0) {
-                recurse($start_date, $date, $group, $year, $balance, $lastbalance, $for_total);
-            }
-        }
-        return $balance;
-    }
-    // ===============================================
-    
-    $id2 = \App\Models\AccountType::where('name', 'Liabilities')->first()->id;
-    $grps2 = \App\Models\AccountGroup::where('company_id', session('company_id'))->where('type_id', $id2)->tree()->get()->ToTree();
-    $gbalance2 = [];
-    $gi = 0;
-    foreach ($grps2 as $gr) {
-        $gite1 = 0;
-        $balance = 0;
-        $lastbalance = 0;
-    
+
         foreach ($gr->accounts as $account) {
             $entries = Illuminate\Support\Facades\DB::table('documents')
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
@@ -186,33 +93,135 @@
                 ->where('entries.account_id', '=', $account->id)
                 ->select('entries.debit', 'entries.credit')
                 ->get();
-    
+
             foreach ($entries as $entry) {
-                $balance = $lastbalance + round($entry->credit) - round($entry->debit);
+                $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
                 $lastbalance = $balance;
             }
         }
-        $gbalance22[$gi] = $balance;
-        // dd($gbalance22);
-    
+        $gbalance11[$gi] = $balance;
+
         foreach ($gr->children as $group) {
             $balance = 0;
             $lastbalance = 0;
-    
+
             foreach ($group->accounts as $account) {
                 $entries = Illuminate\Support\Facades\DB::table('documents')
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
                     ->select('entries.debit', 'entries.credit')
                     ->get();
-    
+
                 foreach ($entries as $entry) {
-                    $balance = $lastbalance + round($entry->credit) - round($entry->debit);
+                    $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
+                    $lastbalance = $balance;
+                }
+            }
+            $gbalance1[$gi][$gite1] = $balance;
+            if (count($group->children) > 0) {
+                $gbalance1[$gi][$gite1++] = recurse($start_date , $date, $group, $year, $balance, $lastbalance, 1);
+            } else {
+                $gite1++;
+            }
+        }
+        $gi++;
+    }
+
+    // dd($gbalance1);
+    // @dd($date);
+    // =================== Recursive function ============================
+    function recurse($start_date, $date, $gr, $year, $balance, $lastbalance, $for_total)
+    {
+        foreach ($gr->children as $group) {
+            foreach ($group->accounts as $account) {
+                $entries = Illuminate\Support\Facades\DB::table('documents')
+                    ->join('entries', 'documents.id', '=', 'entries.document_id')
+                    // ->whereDate('documents.date', '<=', $year->end)
+                    //According to selected date
+                    //->whereDate('documents.date', '>=', $start_date)
+                    ->whereDate('documents.date', '<=', $date)
+                    ->where('documents.company_id', session('company_id'))
+                    ->where('entries.account_id', '=', $account->id)
+                    ->select('entries.debit', 'entries.credit')
+                    ->get();
+
+                // dd($entries);
+                if ($for_total == 1) {
+                    foreach ($entries as $entry) {
+                        $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
+                        $lastbalance = $balance;
+                    }
+                } else {
+                    foreach ($entries as $entry) {
+                        $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
+                        $lastbalance = $balance;
+                    }
+                }
+            }
+            if (count($group->children) > 0) {
+                recurse($start_date , $date, $group, $year, $balance, $lastbalance);
+            }
+        }
+        return $balance;
+    }
+    // ===============================================
+
+    $id2 = \App\Models\AccountType::where('name', 'Liabilities')->first()->id;
+    $grps2 = \App\Models\AccountGroup::where('company_id', session('company_id'))
+        ->where('type_id', $id2)
+        ->tree()
+        ->get()
+        ->ToTree();
+    $gbalance2 = [];
+    $gi = 0;
+    foreach ($grps2 as $gr) {
+        $gite1 = 0;
+        $balance = 0;
+        $lastbalance = 0;
+
+        foreach ($gr->accounts as $account) {
+            $entries = Illuminate\Support\Facades\DB::table('documents')
+                ->join('entries', 'documents.id', '=', 'entries.document_id')
+                // ->whereDate('documents.date', '<=', $year->end)
+                //According to selected date
+                //->whereDate('documents.date', '>=', $start_date)
+                ->whereDate('documents.date', '<=', $date)
+                ->where('documents.company_id', session('company_id'))
+                ->where('entries.account_id', '=', $account->id)
+                ->select('entries.debit', 'entries.credit')
+                ->get();
+
+            foreach ($entries as $entry) {
+                $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
+                $lastbalance = $balance;
+            }
+        }
+        $gbalance22[$gi] = $balance;
+        // dd($gbalance22);
+
+        foreach ($gr->children as $group) {
+            $balance = 0;
+            $lastbalance = 0;
+
+            foreach ($group->accounts as $account) {
+                $entries = Illuminate\Support\Facades\DB::table('documents')
+                    ->join('entries', 'documents.id', '=', 'entries.document_id')
+                    // ->whereDate('documents.date', '<=', $year->end)
+                    //According to selected date
+                    //->whereDate('documents.date', '>=', $start_date)
+                    ->whereDate('documents.date', '<=', $date)
+                    ->where('documents.company_id', session('company_id'))
+                    ->where('entries.account_id', '=', $account->id)
+                    ->select('entries.debit', 'entries.credit')
+                    ->get();
+
+                foreach ($entries as $entry) {
+                    $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
                     $lastbalance = $balance;
                 }
             }
@@ -225,52 +234,57 @@
         }
         $gi++;
     }
-    $id3 = \App\Models\AccountType::where('id', 3)->first()->id;
-    $grps3 = \App\Models\AccountGroup::where('company_id', session('company_id'))->where('type_id', $id3)->tree()->get()->ToTree();
+
+    $id3 = \App\Models\AccountType::where('id',3)->first()->id;
+    $grps3 = \App\Models\AccountGroup::where('company_id', session('company_id'))
+        ->where('type_id', $id3)
+        ->tree()
+        ->get()
+        ->ToTree();
     $gbalance3 = [];
     $gi = 0;
     foreach ($grps3 as $gr) {
         $gite3 = 0;
         $balance = 0;
         $lastbalance = 0;
-    
+
         foreach ($gr->accounts as $account) {
             $entries = Illuminate\Support\Facades\DB::table('documents')
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                // ->whereDate('documents.date', '>=', $start_date)
+                //->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
                 ->select('entries.debit', 'entries.credit')
                 ->get();
-    
+
             foreach ($entries as $entry) {
-                $balance = $lastbalance + round($entry->credit) - round($entry->debit);
+                $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
                 $lastbalance = $balance;
             }
         }
         $gbalance33[$gi] = $balance;
-    
+
         foreach ($gr->children as $group) {
             $balance = 0;
             $lastbalance = 0;
-    
+
             foreach ($group->accounts as $account) {
                 $entries = Illuminate\Support\Facades\DB::table('documents')
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
                     ->select('entries.debit', 'entries.credit')
                     ->get();
-    
+
                 foreach ($entries as $entry) {
-                    $balance = $lastbalance + round($entry->credit) - round($entry->debit);
+                    $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
                     $lastbalance = $balance;
                 }
             }
@@ -283,9 +297,13 @@
         }
         $gi++;
     }
-    
+
     $id4 = \App\Models\AccountType::where('name', 'Revenue')->first()->id;
-    $grps4 = \App\Models\AccountGroup::where('company_id', session('company_id'))->where('type_id', $id4)->tree()->get()->ToTree();
+    $grps4 = \App\Models\AccountGroup::where('company_id', session('company_id'))
+        ->where('type_id', $id4)
+        ->tree()
+        ->get()
+        ->ToTree();
     $balance_total4 = [];
     $gbalance = [];
     $gi = 0;
@@ -294,19 +312,19 @@
         $gite4 = 0;
         $balance = 0;
         $lastbalance = 0;
-    
+
         foreach ($gr->accounts as $account) {
             $entries = Illuminate\Support\Facades\DB::table('documents')
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                // ->whereDate('documents.date', '>=', $start_date)
+                //->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
                 ->select('entries.debit', 'entries.credit')
                 ->get();
-    
+
             foreach ($entries as $entry) {
                 $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
                 $lastbalance = $balance;
@@ -314,24 +332,24 @@
         }
         $gbalance44[$gi] = $balance;
         $balance_total4[$balance4_inc++] = $balance;
-    
+
         // dd($gbalance44);
         foreach ($gr->children as $group) {
             $balance = 0;
             $lastbalance = 0;
-    
+
             foreach ($group->accounts as $account) {
                 $entries = Illuminate\Support\Facades\DB::table('documents')
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
                     ->select('entries.debit', 'entries.credit')
                     ->get();
-    
+
                 foreach ($entries as $entry) {
                     $balance = $lastbalance + floatval($entry->credit) - floatval($entry->debit);
                     $lastbalance = $balance;
@@ -339,23 +357,27 @@
             }
             $gbalance4[$gi][$gite4] = $balance;
             $balance_total4[$balance4_inc++] = $balance;
-    
+
             if (count($group->children) > 0) {
-                $balance_total4[$balance4_inc++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 0);
+                $gbalance4[$gi][$gite4++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 0);
             } else {
                 $gite4++;
             }
         }
         $gi++;
     }
-    
+
     $id5 = \App\Models\AccountType::where('name', 'Expenses')->first()->id;
-    $grps5 = \App\Models\AccountGroup::where('company_id', session('company_id'))->where('type_id', $id5)->tree()->get()->ToTree();
+    $grps5 = \App\Models\AccountGroup::where('company_id', session('company_id'))
+        ->where('type_id', $id5)
+        ->tree()
+        ->get()
+        ->ToTree();
     $balance_total5 = [];
     $gbalance5 = [];
     $gi = 0;
     $balance5_inc = 0;
-    
+
     foreach ($grps5 as $gr) {
         $gite5 = 0;
         $balance = 0;
@@ -365,13 +387,13 @@
                 ->join('entries', 'documents.id', '=', 'entries.document_id')
                 // ->whereDate('documents.date', '<=', $year->end)
                 //According to selected date
-                // ->whereDate('documents.date', '>=', $start_date)
+                //->whereDate('documents.date', '>=', $start_date)
                 ->whereDate('documents.date', '<=', $date)
                 ->where('documents.company_id', session('company_id'))
                 ->where('entries.account_id', '=', $account->id)
                 ->select('entries.debit', 'entries.credit')
                 ->get();
-    
+
             foreach ($entries as $entry) {
                 $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
                 $lastbalance = $balance;
@@ -379,21 +401,23 @@
         }
         $gbalance55[$gi] = $balance;
         $balance_total5[$balance5_inc++] = $balance;
-    
-        foreach ($gr->children as $ss => $group) {
+
+        foreach ($gr->children as $group) {
             $balance = 0;
             $lastbalance = 0;
+
             foreach ($group->accounts as $account) {
                 $entries = Illuminate\Support\Facades\DB::table('documents')
                     ->join('entries', 'documents.id', '=', 'entries.document_id')
                     // ->whereDate('documents.date', '<=', $year->end)
                     //According to selected date
-                    // ->whereDate('documents.date', '>=', $start_date)
+                    //->whereDate('documents.date', '>=', $start_date)
                     ->whereDate('documents.date', '<=', $date)
                     ->where('documents.company_id', session('company_id'))
                     ->where('entries.account_id', '=', $account->id)
-                    ->select('entries.debit', 'entries.credit', 'entries.account_id')
+                    ->select('entries.debit', 'entries.credit')
                     ->get();
+
                 foreach ($entries as $entry) {
                     $balance = $lastbalance + floatval($entry->debit) - floatval($entry->credit);
                     $lastbalance = $balance;
@@ -401,13 +425,9 @@
             }
             $gbalance5[$gi][$gite5] = $balance;
             $balance_total5[$balance5_inc++] = $balance;
-            // echo '<pre>';
-            // echo '          Child ' . $group->name . ' => ' . $balance;
-    
+
             if (count($group->children) > 0) {
-                $balance = 0;
-                $lastbalance = 0;
-                $balance_total5[$balance5_inc++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 1);
+                $gbalance5[$gi][$gite5++] = recurse($start_date, $date, $group, $year, $balance, $lastbalance, 1);
             } else {
                 $gite5++;
             }
@@ -421,13 +441,12 @@
         <table width="100%" style="border-collapse: collapse;">
             <thead>
                 <tr>
-                    <th align="left" style="width: 50%;">
+                     <th align="left" style="width: 50%;">
                         <h3>Balance Sheet</h3>
                     </th>
                     <th colspan='2' align="right" style="width: 30%;">
                         <h5>Generated on: {{ $dt }}</h5>
-                        <h5> {{ 'Form: ' . Carbon\Carbon::create($start_date)->format('M d, Y') . ' To: ' . Carbon\Carbon::create($date)->format('M d, Y') }}
-                        </h5>
+                        <h5> {{'Form: '.Carbon\Carbon::create($start_date)->format('M d, Y'). ' To: '. Carbon\Carbon::create($date)->format('M d, Y')}}</h5>
                     </th>
                 </tr>
                 <tr>
@@ -494,7 +513,7 @@
                     <td></td>
                 </tr>
                 <?php
-                
+
                 $gbalance_total2 = [];
                 ?>
                 @foreach ($grps2 as $key => $group)
@@ -589,9 +608,11 @@
                 </tr>
 
                 <?php
-                
+
                 $profit = array_sum($balance_total4) - array_sum($balance_total5);
+
                 $equity = array_sum($gbalance_total2) + array_sum($gbalance_total3) + $profit;
+                // dd($equity);
                 ?>
                 @if ($profit != 0)
                     <tr>
@@ -617,19 +638,6 @@
         </table>
     </div>
     <br />
-    {{-- @dd('asse' . ' => ' . floatval(array_sum($gbalance_total)), 'liab' . ' => ' . floatval(array_sum($gbalance_total2)), 'cap' . ' => ' . floatval(array_sum($gbalance_total3)), 'rev' . ' => ' . round(array_sum($balance_total4)), ' exp' . ' => ' . round(array_sum($balance_total5))); --}}
-    <?php
-    $su = 0;
-    foreach ($gbalance_total2 as $key => $val) {
-        echo '<pre>';
-        echo round($val);
-        $su += round($val);
-    }
-    echo '<pre>';
-    echo 'total' . $su;
-    ?>
-
-
     <script type="text/php">
         if (isset($pdf)) {
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             $x = 500;
