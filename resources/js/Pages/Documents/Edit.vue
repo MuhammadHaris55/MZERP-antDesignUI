@@ -361,14 +361,14 @@ export default {
         tcredit() {
             let dtotal = 0;
             for (var i = 0; i < this.form.entries.length; i++) {
-                dtotal = dtotal + parseInt(this.form.entries[i].credit);
+                dtotal = dtotal + parseFloat(this.form.entries[i].credit).toFixed(2);
             }
             this.credit = dtotal;
         },
         tdebit() {
             let dtotal = 0;
             for (var i = 0; i < this.form.entries.length; i++) {
-                dtotal = dtotal + parseInt(this.form.entries[i].debit);
+                dtotal = dtotal + parseFloat(this.form.entries[i].debit).toFixed(2);
             }
             this.debit = dtotal;
         },
@@ -417,7 +417,7 @@ export default {
             if (this.debit == 0 && this.credit == 0) {
                 this.difference = null;
             } else {
-                diff = parseInt(this.debit) - parseInt(this.credit);
+                diff = parseFloat(this.debit).toFixed(2) - parseFloat(this.credit).toFixed(2);
                 this.difference = diff;
             }
         },
@@ -429,7 +429,7 @@ export default {
             if (this.debit == 0 && this.credit == 0) {
                 this.difference = null;
             } else {
-                diff = parseInt(this.debit) - parseInt(this.credit);
+                diff = parseFloat(this.debit).toFixed(2) - parseFloat(this.credit).toFixed(2);
                 this.difference = diff;
             }
         },
