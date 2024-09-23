@@ -215,6 +215,9 @@
         </table>
     </div>
     <br />
+    @php 
+    echo "testing";
+    @endphp 
     <script type="text/php">if (isset($pdf)) {
                                                                             $x = 500;
                                                                             $y = 820;
