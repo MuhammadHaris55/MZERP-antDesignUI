@@ -350,8 +350,6 @@ export default {
         creditchange(index) {
             let b = this.form.entries[index];
             b.debit = 0;
-            console.log(b.credit);
-
             this.tcredit();
             this.tdebit();
         },
@@ -359,18 +357,20 @@ export default {
 
         // CALCULATING TOTAL AMOUNT OF DEBIT AND CREDIT ----START ----------------
         tcredit() {
-            let dtotal = 0;
+            let ctotal = 0;
             for (var i = 0; i < this.form.entries.length; i++) {
-                dtotal = dtotal + parseFloat(this.form.entries[i].credit).toFixed(2);
+                ctotal += parseFloat(this.form.entries[i].credit);
+                console.log('tcredit ==> '+ ctotal);
             }
-            this.credit = dtotal;
+            this.credit = ctotal.toFixed(2);
+            
         },
         tdebit() {
             let dtotal = 0;
             for (var i = 0; i < this.form.entries.length; i++) {
-                dtotal = dtotal + parseFloat(this.form.entries[i].debit).toFixed(2);
+                dtotal += parseFloat(this.form.entries[i].debit);
             }
-            this.debit = dtotal;
+            this.debit = dtotal.toFixed(2);
         },
         // CALCULATING TOTAL AMOUNT OF DEBIT AND CREDIT ---- END ----------------
 
@@ -398,7 +398,6 @@ export default {
             this.difference = null;
 
             count += 1;
-            console.log(count);
         },
         deleteRow(index) {
             this.form.entries.splice(index, 1);
@@ -425,7 +424,7 @@ export default {
             this.checkingZero();
 
             let diff = 0;
-            console.log(this.credit);
+            console.log('dif ==> ' + this.credit);
             if (this.debit == 0 && this.credit == 0) {
                 this.difference = null;
             } else {
