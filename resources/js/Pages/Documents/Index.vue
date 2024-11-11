@@ -168,8 +168,16 @@
                                 size="small"
                                 v-if="yearclosed && can['edit']"
                                 type="primary"
+                                @click="clone(record.id)"
+                                class="m-2"
+                                >Clone</Button
+                            >
+                            <Button
+                                size="small"
+                                v-if="yearclosed && can['edit']"
+                                type="primary"
                                 @click="edit(record.id)"
-                                class="mr-2"
+                                class="m-2"
                                 >Edit</Button
                             >
                             <Button
@@ -177,7 +185,7 @@
                                 v-else
                                 type="primary"
                                 @click="edit(record.id)"
-                                class="mr-2"
+                                class="m-2"
                                 >Show</Button
                             >
                             <Button
@@ -221,6 +229,7 @@ import { pickBy } from "lodash";
 import { throttle } from "lodash";
 import Multiselect from "@suadelabs/vue3-multiselect";
 import { useForm } from "@inertiajs/inertia-vue3";
+import { clone } from "lodash";
 
 export default {
     components: {
@@ -364,6 +373,10 @@ export default {
         // file upload end
         create() {
             this.$inertia.get(route("documents.create"));
+        },
+
+        clone(id) {
+            this.$inertia.get(route("documents.clone", id));
         },
 
         edit(id) {

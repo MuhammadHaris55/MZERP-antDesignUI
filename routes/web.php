@@ -302,6 +302,10 @@ Route::post('documents', [DocumentController::class, 'store'])
     ->name('documents.store')
     ->middleware('auth');
 
+Route::get('documents/{document}/clone', [DocumentController::class, 'clone'])
+    ->name('documents.clone')
+    ->middleware('auth');
+
 Route::get('documents/{document}/edit', [DocumentController::class, 'edit'])
     ->name('documents.edit')
     ->middleware('auth');

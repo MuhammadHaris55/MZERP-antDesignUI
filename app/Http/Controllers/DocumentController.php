@@ -408,11 +408,8 @@ class DocumentController extends Controller
         return Redirect::route('documents')->with('success', 'Transaction created.');
     }
 
-    public function edit(Document $document)
+    public function clone(Document $document)
     {
-        // if (auth()->user()->roles->first()->name == 'user') {
-        //     abort(403, 'You don\'t have access this page');
-        // }
         $accounts = Account::where('company_id', session('company_id'))->get()->map(function ($acc) {
             return [
                 "id" => $acc->id,
@@ -442,10 +439,77 @@ class DocumentController extends Controller
                 ];
             });
 
-        // $ref = Document::all()->where('document_id', $document->id);
-        // // $entrie = Document::all()->where('document_id', $document->id);
-        // $entrie = Document::all()->where('document_id', 1);
-        // // ->toArray();
+
+        $i = 0;
+        foreach ($entrie as $entry) {
+            $entries[$i] = $entry;
+            $i++;
+        }
+
+        $date_range = Year::where('id', session('year_id'))->first();
+
+        return Inertia::render(
+            'Documents/Clone',
+            [
+                'document' =>
+                // $document,
+                [
+                    'id' => $document->id,
+                    'ref' => $document->ref,
+                    'date' => $document->date,
+                    'description' => $document->description,
+                    'type_id' => $document->type_id,
+                    'type_name' => $document->documentType->name,
+                    'entries' => $document->entries,
+                ],
+                'accounts' => $accounts,
+                'doc_types' => $doc_types,
+                'entriess' => $entries,
+                'min_start' => $date_range->begin,
+                'closed' => $date_range->closed == 1 ? false  :  true,
+                'max_end' => $date_range->end,
+                'can' => [
+                    'edit' => auth()->user()->can('edit'),
+                    'create' => auth()->user()->can('create'),
+                    'delete' => auth()->user()->can('delete'),
+                    'read' => auth()->user()->can('read'),
+                ],
+            ]
+        );
+    }
+
+
+    public function edit(Document $document)
+    {
+        $accounts = Account::where('company_id', session('company_id'))->get()->map(function ($acc) {
+            return [
+                "id" => $acc->id,
+                "number" => $acc->number,
+                "name" => $acc->number . ' - ' . $acc->name . ' - ' . $acc->accountGroup->name,
+                "company_id" => $acc->company_id,
+                "group_id" => $acc->group_id,
+                // "nameNum" => $acc->name,
+                // "credit" => $acc->credit,
+            ];
+        });
+
+        $doc_types = DocumentType::all()->map->only('id', 'name');
+        $doc = Document::all()->where('id', $document->id)->map->only('id', 'ref')->first();
+
+        $ref = Entry::all()->where('document_id', $document->id);
+        $entrie = Entry::all()->where('document_id', $document->id)
+            ->map(function ($entry) {
+                return [
+                    "id" => $entry->id,
+                    "company_id" => $entry->company_id,
+                    "document_id" => $entry->document_id,
+                    "account_id" => $entry->account->id,
+                    "year_id" => $entry->year_id,
+                    "debit" => $entry->debit,
+                    "credit" => $entry->credit,
+                ];
+            });
+
 
         $i = 0;
         foreach ($entrie as $entry) {
