@@ -21,99 +21,60 @@ class AccountController extends Controller
 {
     public function index(Req $req)
     {
-        if (AccountGroup::where('company_id', session('company_id'))->first()) {
-
-            //Validating request
-            request()->validate([
-                'direction' => ['in:asc,desc'],
-                'field' => ['in:name,email']
-            ]);
-
-            //Searching request
-            $query = Account::query();
-            if (request('search')) {
-                $query->where('name', 'LIKE', '%' . request('search') . '%');
-            }
-            // // Ordering request
-            // if (request()->has(['field', 'direction'])) {
-            //     $query->orderBy(
-            //         request('field'),
-            //         request('direction')
-            //     );
-            // }
-            $retain =   Setting::where('company_id', session('company_id'))->where('key' , 'retain_earning')->first();
-            if($retain){
-               $retain =  $retain->value;
-            }else{
-                $retain = 0;
-            }
-
-            $balances = $query
-                ->where('company_id', session('company_id'))
-                ->paginate(10)
-                ->withQueryString()
-                ->through(
-                    function ($account) use ($retain) {
-                        return
-                            [
-                                'id' => $account->id,
-                                'name' => $account->name,
-                                // 'group_id' => $account->parent_id,
-                                'group_name' => $account->accountGroup->name,
-                                'delete' => $retain == $account->id || Entry::where('account_id', $account->id)->first() ? false : true,
-                            ];
-                    }
-                );
-
-            if(request()->has(
-                // ['select', 'search']
-                'search'
-                )){
-                $obj_data = Account::where(
-                    // $req->select
-                    'name'
-                    ,'LIKE', '%'.$req->search.'%')
-                ->where('company_id', session('company_id'))
-                ->get();
-                $mapped_data = $obj_data->map(function($account, $key) use ($retain) {
-                return [
-                        'id' => $account->id,
-                        'name' => $account->name,
-                        // 'group_id' => $account->parent_id,
-                        'group_name' => $account->accountGroup->name,
-                        'delete' => $retain == $account->id || Entry::where('account_id', $account->id)->first() ? false : true,
-                    ];
-                });
-            }
-            else{
-                $obj_data = Account::where('company_id', session('company_id'))->get();
-                $mapped_data = $obj_data->map(function($account, $key) use ($retain) {
-                return [
-                        'id' => $account->id,
-                        'name' => $account->name,
-                        // 'group_id' => $account->parent_id,
-                        'group_name' => $account->accountGroup->name,
-                        'delete' => $retain == $account->id || Entry::where('account_id', $account->id)->first() ? false : true,
-                    ];
-                });
-            }
-            return Inertia::render('Accounts/Index', [
-                'filters' => request()->all(['search', 'field', 'direction']),
-                'balances' => $balances,
-                'mapped_data' => $mapped_data,
-                'company' => Company::where('id', session('company_id'))->first(),
-                'companies' => auth()->user()->companies,
-                'can' => [
-                    'edit' => auth()->user()->can('edit'),
-                    'create' => auth()->user()->can('create'),
-                    'delete' => auth()->user()->can('delete'),
-                    'read' => auth()->user()->can('read'),
-                ],
-            ]);
-        } else {
+        if (!AccountGroup::where('company_id', session('company_id'))->exists()) {
             return Redirect::route('accountgroups')->with('warning', 'ACCOUNTGROUP NOT FOUND, Please create account group first.');
         }
+    
+        // Validate request
+        $req->validate([
+            'direction' => ['in:asc,desc'],
+            'field' => ['in:name,email']
+        ]);
+    
+        $companyId = session('company_id');
+    
+        // Retrieve retain earnings setting
+        $retain = Setting::where('company_id', $companyId)->where('key', 'retain_earning')->value('value') ?? 0;
+    
+        // Fetch accounts
+        $query = Account::where('company_id', $companyId);
+        
+        if ($req->has('search') && !empty($req->search)) {
+            $query->where('name', 'LIKE', "%$req->search%");
+        }
+        
+        $page = (int) $req->get('page', 1); // Ensure it's an integer
+        $pageSize = (int) $req->get('pageSize', 10);
+        
+        $accounts = $query->orderBy('id', 'DESC')->paginate($pageSize, ['*'], 'page', $page);
+    
+        // Map data
+        $mappedData = $accounts->map(function ($account) use ($retain) {
+            return [
+                'id' => $account->id,
+                'name' => $account->name,
+                'group_name' => $account->accountGroup->name,
+                'delete' => !($retain == $account->id || Entry::where('account_id', $account->id)->exists()),
+            ];
+        });
+    
+        return Inertia::render('Accounts/Index', [
+            'filters' => $req->only(['search', 'field', 'direction']),
+            'mapped_data' => $mappedData,
+            'total' => $accounts->total(),
+            'current_page' => $accounts->currentPage(),
+            'per_page' => $accounts->perPage(),
+            'company' => Company::find($companyId),
+            'companies' => auth()->user()->companies,
+            'can' => [
+                'edit' => auth()->user()->can('edit'),
+                'create' => auth()->user()->can('create'),
+                'delete' => auth()->user()->can('delete'),
+                'read' => auth()->user()->can('read'),
+            ],
+        ]);
     }
+    
 
     public function create()
     {

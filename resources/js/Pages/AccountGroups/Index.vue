@@ -63,6 +63,14 @@
                     :columns="columns"
                     :data-source="mapped_data"
                     :loading="loading"
+                    :pagination="{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: total,  // Adjust total according to your data
+                        showSizeChanger: true,       // Show option to change page size
+                        pageSizeOptions: ['10', '20', '30', '50'],  // Page size options
+                    }"
+                    @change="handlePaginationChange"
                     class="mt-2"
                     size="small"
                 >
@@ -119,6 +127,10 @@ export default {
         exists: Object,
         can: Object,
         mapped_data: Object,
+        total: Object,
+        current_page: Object,
+        per_page: Object,
+       
     },
 
     data() {
@@ -128,28 +140,13 @@ export default {
             options: this.companies,
             search: "",
             selected: this.company.name,
-
+            currentPage: this.current_page, 
+            pageSize: this.per_page,
+            total: this.total,
             columns: [
-                // {
-                //   title: "ID",
-                //   dataIndex: "id",
-                //   // sorter: (a, b) => a.id - b.id,
-                //   width: "10%",
-                // },
                 {
                     title: "Group Name",
                     dataIndex: "name",
-                    // sorter: (a, b) => {
-                    //     const nameA = a.name.toUpperCase();
-                    //     const nameB = b.name.toUpperCase();
-                    //     if (nameA < nameB) {
-                    //         return -1;
-                    //     }
-                    //     if (nameA > nameB) {
-                    //         return 1;
-                    //     }
-                    //     return 0;
-                    //     },
                     width: "20%",
                 },
                 {
@@ -166,34 +163,38 @@ export default {
                     key: "actions",
                 },
             ],
-
-            // const options = [{
-            //     value: 'name',
-            //     label: 'Name',
-            //   }, {
-            //     value: 'email',
-            //     label: 'Email',
-            // }],
-
             params: {
                 search: this.filters.search,
-                // field: this.filters.field,
-                // direction: this.filters.direction,
             },
         };
     },
 
     methods: {
+        fetchData() {
+            this.$inertia.get(route("accountgroups"), {
+                search: this.search,
+                page: this.currentPage,
+                pageSize: this.pageSize,
+            }, {
+                replace: true,
+                preserveState: true,
+                onSuccess: (response) => {
+                    this.currentPage = response.props.current_page;
+                    this.pageSize = response.props.per_page;       
+                    this.total = response.props.total;
+                }
+            });
+        },
+
         onSearch() {
-            this.$inertia.get(
-                route("accountgroups"),
-                {
-                    // select: select.value,
-                    // search: search.value
-                    search: this.search,
-                },
-                { replace: true, preserveState: true }
-            );
+            this.currentPage = 1;  // Jab search ho, page 1 par le aayein
+            this.fetchData();
+        },
+
+        handlePaginationChange(pagination) {
+            this.currentPage = pagination.current;
+            this.pageSize = pagination.pageSize;
+            this.fetchData();
         },
         create() {
             this.$inertia.get(route("accountgroups.create"));

@@ -18,61 +18,50 @@ class AccountGroupController extends Controller
 {
     public function index(Req $req)
     {
-        if (request()->has(
-            // ['select', 'search']
-            'search'
-        )) {
-            $obj_data = AccountGroup::where(
-                // $req->select
-                'name',
-                'LIKE',
-                '%' . $req->search . '%'
-            )
-                ->where('company_id', session('company_id'))
-                ->get();
+        
+        $query = AccountGroup::where('company_id', session('company_id'));
 
-            $mapped_data = $obj_data->map(function ($acc_group, $key) {
-                return [
-                    'id' => $acc_group->id,
-                    'name' => $acc_group->name,
-                    'type_id' => $acc_group->type_id,
-                    'type_name' => $acc_group->accountType->name,
-                    'company_id' => $acc_group->company_id,
-                    'company_name' => $acc_group->company->name,
-                    'delete' =>  Account::where('group_id', $acc_group->id)->first() || AccountGroup::where('company_id', session('company_id'))->where('parent_id', $acc_group->id)->first() ? false : true,
-                ];
-            });
-        } else {
-            $obj_data = AccountGroup::where('company_id', session('company_id'))->get();
-
-            $mapped_data = $obj_data->map(function ($acc_group, $key) {
-                return [
-                    'id' => $acc_group->id,
-                    'name' => $acc_group->name,
-                    'type_id' => $acc_group->type_id,
-                    'type_name' => $acc_group->accountType->name,
-                    'company_id' => $acc_group->company_id,
-                    'company_name' => $acc_group->company->name,
-                    // 'delete' => Account::where('group_id', $acc_group->id)->first() ? false : true,
-                    'delete' => Account::where('group_id', $acc_group->id)->first() || AccountGroup::where('company_id', session('company_id'))->where('parent_id', $acc_group->id)->first() ? false : true,
-                ];
-            });
+        if ($req->has('search') && !empty($req->search)) {
+            $query->where('name', 'like', '%' . $req->search . '%');
         }
 
+
+        $page = (int) $req->get('page', 1); // Ensure it's an integer
+        $pageSize = (int) $req->get('pageSize', 10); // Ensure it's an integer
+
+        $obj_data = $query->orderBy('id', 'Desc')->paginate($pageSize, ['*'], 'page', $page); // Force page
+
+        $mapped_data = $obj_data->map(function ($acc_group) {
+            return [
+                'id' => $acc_group->id,
+                'name' => $acc_group->name,
+                'type_id' => $acc_group->type_id,
+                'type_name' => $acc_group->accountType->name,
+                'company_id' => $acc_group->company_id,
+                'company_name' => $acc_group->company->name,
+                'delete' => Account::where('group_id', $acc_group->id)->exists() || 
+                            AccountGroup::where('company_id', session('company_id'))
+                                ->where('parent_id', $acc_group->id)->exists() ? false : true,
+            ];
+        });
         return Inertia::render('AccountGroups/Index', [
             'mapped_data' => $mapped_data,
-            'filters' => request()->all(['search', 'field', 'direction']),
+            'total' => $obj_data->total(),
+            'current_page' => $obj_data->currentPage(),
+            'per_page' => $obj_data->perPage(),
+            'filters' => $req->only(['search', 'field', 'direction']),
             'can' => [
                 'edit' => auth()->user()->can('edit'),
                 'create' => auth()->user()->can('create'),
                 'delete' => auth()->user()->can('delete'),
                 'read' => auth()->user()->can('read'),
             ],
-            'exists' => AccountGroup::where('company_id', session('company_id'))->first() ? false : true,
+            'exists' => !AccountGroup::where('company_id', session('company_id'))->exists(),
             'company' => Company::find(session('company_id')),
             'companies' => Auth::user()->companies,
         ]);
     }
+
 
     public function create(Req $request)
     {

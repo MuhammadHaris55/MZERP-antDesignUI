@@ -104,6 +104,8 @@ Route::get('transactions-detail', [ReportController::class, 'transactions_detail
     ->name('transactions_detail')
     ->middleware('auth');
 
+   
+
 //Balance Sheet -------------------- Starts ---------------------------
 // Route::get('bs', [ReportController::class, 'bs'])
 //     ->name('bs')
@@ -281,6 +283,10 @@ Route::put('documenttypes/{documenttype}', [DocumentTypeController::class, 'upda
 
 Route::delete('documenttypes/{documenttype}', [DocumentTypeController::class, 'destroy'])
     ->name('documenttypes.destroy')
+    ->middleware('auth');
+
+Route::get('transactions-export', [DocumentController::class, 'transactions_export'])
+    ->name('transactions_export')
     ->middleware('auth');
 //DOCUMENT TYPES / VOUCHER ----------- END ------------------------------
 

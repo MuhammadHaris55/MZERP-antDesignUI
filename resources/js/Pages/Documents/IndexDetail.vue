@@ -68,16 +68,33 @@
                 name="date_end"
             />
 
+            <a
+                href="javascript:void(0)"
+                class="ant-btn ant-btn-sm ml-2"
+                style="float: right"
+                target="_blank"
+                @click="exportData"
+                >Export</a
+            >
+
             <div v-if="errors.date_end">{{ errors.date_end }}</div>
 
             <div class="relative overflow-x-auto mt-2 ml-2 sm:rounded-2xl">
                 <Table
-                    :columns="columns"
-                    :data-source="mapped_data"
-                    :loading="loading"
-                    class="mt-2 components-table-demo-nested"
-                    size="small"
-                >
+                :columns="columns"
+                :data-source="mapped_data"
+                :loading="loading"
+                :pagination="{
+                    current: currentPage,
+                    pageSize: pageSize,
+                    total: total,  // Adjust total according to your data
+                    showSizeChanger: true,       // Show option to change page size
+                    pageSizeOptions: ['10', '20', '30', '50'],  // Page size options
+                }"
+                @change="handlePaginationChange"
+                class="mt-2"
+                size="small"
+            >
                     <template #bodyCell="{ column, record }"> </template>
                     <template #description="{ text }">
                         <a-tooltip placement="topLeft" title="Prompt Text">
@@ -150,6 +167,10 @@ export default {
         date_end: Object,
         min_start: Object,
         max_end: Object,
+        total: Object,
+        current_page: Object,
+        per_page: Object,				
+
     },
 
     data() {
@@ -163,13 +184,16 @@ export default {
             years: this.years,
             selected_year: this.year.name,
             d_start: this.date_start ? this.date_start : this.min_start,
-            d_end: this.date_start ? this.date_start : this.max_end,
+            d_end: this.date_end ? this.date_end : this.max_end,
             start: this.min_start
                 ? this.min_start
                 : new Date().toISOString().substr(0, 10),
             end: this.max_end
                 ? this.max_end
                 : new Date().toISOString().substr(0, 10),
+            currentPage: this.current_page, 
+            pageSize: this.per_page,
+            total: this.total,
             columns: [
                 // {
                 //   title: "ID",
@@ -229,17 +253,56 @@ export default {
     },
 
     methods: {
-        onSearch() {
-            this.$inertia.get(
-                route("documents_detail"),
-                {
-                    search: this.search,
-                    date_start: this.d_start,
-                    date_end: this.d_end,
-                },
-                { replace: true, preserveState: true }
-            );
+        fetchData() {
+            this.$inertia.get(route("documents_detail"), {
+                search: this.search,
+                date_start: this.d_start,
+                date_end: this.d_end,
+                page: this.currentPage,
+                pageSize: this.pageSize,
+            }, {
+                replace: true,
+                preserveState: true,
+                onSuccess: (response) => {
+                    this.currentPage = response.props.current_page;	
+                    this.pageSize = response.props.per_page;       
+                    this.total = response.props.total;
+                }
+            });
         },
+        exportData() {
+            const params = new URLSearchParams({
+                search: this.search || '',
+                date_start: this.d_start || '',
+                date_end: this.d_end || '',
+            }).toString();
+
+            window.location.href = route("transactions_export") + "?" + params;
+        },
+
+        onSearch() {
+            this.currentPage = 1;
+            this.fetchData();
+        },
+
+        handlePaginationChange(pagination) {
+            this.currentPage = pagination.current;
+            this.pageSize = pagination.pageSize;
+            this.fetchData();
+        },
+
+
+        // onSearch() {
+        //     this.$inertia.get(
+        //         route("documents_detail"),
+        //         {
+        //             search: this.search,
+        //             date_start: this.d_start,
+        //             date_end: this.d_end,
+        //         },
+        //         { replace: true, preserveState: true }
+        //     );
+        // },
 
         coch(value) {
             this.$inertia.get(route("companies.coch", value));

@@ -134,7 +134,7 @@ class DashboardController extends Controller
 
     public function calculateDebitSumByAccountGroup($id, $amount_type  ,$startDate, $endDate)
     {
-        $accountGroups = AccountGroup::where('type_id', $id)
+        $accountGroups = AccountGroup::select('id','name','company_id')->where('type_id', $id)
             ->where('company_id', session('company_id'))
             ->with('accounts.entries')
             ->get();

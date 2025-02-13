@@ -17,6 +17,8 @@ use Carbon\Carbon;
 use Exception;
 use PhpParser\Comment\Doc;
 use App\Rules\UniqueAccountIds;
+use App\Exports\EntryExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DocumentController extends Controller
 {
@@ -30,11 +32,12 @@ class DocumentController extends Controller
 
         $acc = Account::where('company_id', session('company_id'))->count();
         $doc_ty = DocumentType::where('company_id', session('company_id'))->first();
-
+        $page = (int) $req->get('page', 1);
+        $pageSize = (int) $req->get('pageSize', 10);
         $yearclosed = year::where('id', session('year_id'))->where('closed', 0)->first();
         if ($acc >= 2  && $doc_ty) {
 
-            if (request()->has('search')) {
+            if ($req->has('search') && !empty($req->search)) {
                 $search_word = $req->search;
                 $obj_data = Document::select("*")->orderBy('id','Desc')
                     ->where(function ($query) use ($search_word) {
@@ -52,7 +55,7 @@ class DocumentController extends Controller
                             ->where('company_id', session('company_id'))
                             ->where('year_id', session('year_id'))
                             ->where('date', 'LIKE', '%' . $search_word . '%');
-                    })->get();
+                    })->orderBy('id', 'DESC')->paginate($pageSize, ['*'], 'page', $page);;
 
                 $mapped_data = $obj_data->map(function ($document, $key) {
                     return [
@@ -72,7 +75,8 @@ class DocumentController extends Controller
                 // dd(session('year_id'));
                 $obj_data = Document::where('company_id', session('company_id'))
                     ->where('year_id', session('year_id'))->orderBy('id','Desc')
-                    ->get();
+                    ->orderBy('id', 'DESC')->paginate($pageSize, ['*'], 'page', $page);;
+
                 $mapped_data = $obj_data->map(function ($document, $key) {
                     $date = new Carbon($document->date);
                     return [
@@ -98,8 +102,9 @@ class DocumentController extends Controller
                         'read' => auth()->user()->can('read'),
                     ],
                     'mapped_data' => $mapped_data,
-
-                    // 'data' => $docs,
+                    'total' => $obj_data->total(),
+                    'current_page' => $obj_data->currentPage(),
+                    'per_page' => $obj_data->perPage(),
                     'yearclosed' => $yearclosed,
                     'filters' => request()->all(['search', 'field', 'direction']),
                     'company' => companies_first(),
@@ -124,15 +129,12 @@ class DocumentController extends Controller
             'field' => ['in:name,email']
         ]);
 
-        // $acc = Account::where('company_id', session('company_id'))->count();
-        // $doc_ty = DocumentType::where('company_id', session('company_id'))->first();
-
-        // $yearclosed = year::where('id', session('year_id'))->where('closed', 0)->first();
-        // if ($acc >= 2  && $doc_ty) {
+            
             $date_range = Year::where('id', session('year_id'))->first();
             $start = new Carbon($date_range->begin);
             $end = new Carbon($date_range->end);
-
+            $page = (int) $req->get('page', 1);
+            $pageSize = (int) $req->get('pageSize', 10);
             if (request()->has('search') && request()->has('date_start') && request()->has('date_end') ) {
 
                 $start = Carbon::create($start);
@@ -145,12 +147,8 @@ class DocumentController extends Controller
                 $ReqStart = $ReqStart->format('Y-m-d');
                 $ReqEnd = $ReqEnd->format('Y-m-d');
 
-                // if($end >> request()->has('date_end')){
-                //      return Redirect::route('documenttypes')->with('warning', 'Date End NOT FOUND, Please create voucher first.');
-                // }
-
                 $search_word = $req->search;
-
+                
 
                 $obj_data = Entry::orderBy('id','Asc')
                     ->where(function ($query) use ($search_word , $ReqStart , $ReqEnd) {
@@ -216,7 +214,7 @@ class DocumentController extends Controller
                                 $r->where('name', 'LIKE', '%' . $search_word . '%');
                            });
 
-                    })->orderBy('created_at','desc')->get();
+                    })->orderBy('created_at','desc')->paginate($pageSize, ['*'], 'page', $page);
 
                 $mapped_data = $obj_data->map(function ($entry, $key) {
 
@@ -229,7 +227,7 @@ class DocumentController extends Controller
 
                     return [
                         'ref' => $entry->document->ref,
-
+                        
                         // $date = new Carbon($entry->document->date),
                         'date' => $entry->document->date,
                         'description' => $description,
@@ -245,12 +243,7 @@ class DocumentController extends Controller
 
                 $obj_data = Entry::where('company_id', session('company_id'))
                     ->where('year_id', session('year_id'))->
-                    // ->whereHas('document',function($r) use ($start){
-                    //         $r->where('date', '>=', $start->format('Y-m-d') )->where('date', '<=', $start->format('Y-m-d'));
-
-                    //     })->
-
-                    orderBy('document_id','desc')->get();
+                    orderBy('document_id','desc')->paginate($pageSize, ['*'], 'page', $page);;
 
                 $mapped_data = $obj_data->map(function ($entry, $key) {
 
@@ -285,6 +278,9 @@ class DocumentController extends Controller
                         'read' => auth()->user()->can('read'),
                     ],
                     'mapped_data' => $mapped_data,
+                    'total' => $obj_data->total(),
+                    'current_page' => $obj_data->currentPage(),
+                    'per_page' => $obj_data->perPage(),
                     'date_start' => $start->format('Y-m-d'),
                     'date_end' => $end->format('Y-m-d'),
                     'min_start' => $date_range->begin,
@@ -304,6 +300,18 @@ class DocumentController extends Controller
         //     return Redirect::route('accounts')->with('warning', 'ACCOUNT NOT FOUND, Please create an account first.');
         // }
     }
+
+
+    public function transactions_export(Req $req) 
+    {
+        $ReqStart = Carbon::parse($req->date_start);
+        $ReqEnd = Carbon::parse($req->date_end);
+        $search_word = $req->search ?? '';
+        return Excel::download(new EntryExport($search_word, $ReqStart, $ReqEnd), 'entry.xlsx');
+        
+    }
+
+
 
 
     public function create()

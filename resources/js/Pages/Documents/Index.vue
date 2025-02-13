@@ -151,6 +151,14 @@
                     :columns="columns"
                     :data-source="mapped_data"
                     :loading="loading"
+                    :pagination="{
+                        current: currentPage,
+                        pageSize: pageSize,
+                        total: total,  // Adjust total according to your data
+                        showSizeChanger: true,       // Show option to change page size
+                        pageSizeOptions: ['10', '20', '30', '50'],  // Page size options
+                    }"
+                    @change="handlePaginationChange"
                     class="mt-2"
                     size="small"
                 >
@@ -265,6 +273,9 @@ export default {
         year: Object,
         yearclosed: Object,
         can: Object,
+        total: Object,
+        current_page: Object,
+        per_page: Object,
     },
 
     setup() {
@@ -286,9 +297,10 @@ export default {
             yr_id: this.$page.props.yr_id,
             years: this.years,
             selected_year: this.year.name,
-
             isCheckAll: false,
-
+            currentPage: this.current_page, 
+            pageSize: this.per_page,
+            total: this.total,
             columns: [
                 // {
                 //   title: "ID",
@@ -344,14 +356,40 @@ export default {
     },
 
     methods: {
+        // onSearch() {
+        //     this.$inertia.get(
+        //         route("documents"),
+        //         {
+        //             search: this.search,
+        //         },
+        //         { replace: true, preserveState: true }
+        //     );
+        // },
+        fetchData() {
+            this.$inertia.get(route("documents"), {
+                search: this.search,
+                page: this.currentPage,
+                pageSize: this.pageSize,
+            }, {
+                replace: true,
+                preserveState: true,
+                onSuccess: (response) => {
+                    this.currentPage = response.props.current_page;	
+                    this.pageSize = response.props.per_page;       
+                    this.total = response.props.total;
+                }
+            });
+        },
+
         onSearch() {
-            this.$inertia.get(
-                route("documents"),
-                {
-                    search: this.search,
-                },
-                { replace: true, preserveState: true }
-            );
+            this.currentPage = 1;  // Jab search ho, page 1 par le aayein
+            this.fetchData();
+        },
+
+        handlePaginationChange(pagination) {
+            this.currentPage = pagination.current;
+            this.pageSize = pagination.pageSize;
+            this.fetchData();
         },
         //   for file upload
         submit() {
